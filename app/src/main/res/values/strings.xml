@@ -1,0 +1,41 @@
+<resources>
+    <string name="app_name">Color Guesser</string>
+
+    <string name="rgb">RGB</string>
+    <string name="hex">Hex</string>
+    <string name="cmyk">CMYK</string>
+    <string name="preset">Color Presets</string>
+    <string name="guess">Guess</string>
+    <string name="score">Score</string>
+    <string name="settings">Settings</string>
+    <string name="rgb_info">Guess the RGB values (0–255 for each value)</string>
+    <string name="hex_info">Guess the Hex value (0-f)</string>
+    <string name="cmyk_info">Guess the CMYK values (0–100 for each one)</string>
+    <string name="preset_info">Fill the Fields with a Color Preset</string>
+    <string name="guess_info">Make your Guess\n\nAfter you make your guess\n\nthe correct values will be shown up by the scores</string>
+    <string name="score_info">Your Score is up here\n\n
+        CMYK will give at most 400 points (100 total for each value correct)\n\n
+        Hex will give at most 768 points (256 total for each value correct)\n\n
+        RGB will give at most 768 points (256 total for each value correct)</string>
+    <string name="settings_info">View Settings up here</string>
+
+    <string name="scores">Score: %d</string>
+
+    <string-array name="colors">
+
+        <item></item>
+        <item>Red</item>
+        <item>Green</item>
+        <item>Blue</item>
+        <item>Black</item>
+        <item>Cyan</item>
+        <item>Dark Gray</item>
+        <item>Gray</item>
+        <item>Light Gray</item>
+        <item>Magenta</item>
+        <item>White</item>
+        <item>Yellow</item>
+
+    </string-array>
+
+</resources>

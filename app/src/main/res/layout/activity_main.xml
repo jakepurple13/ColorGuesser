@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="5dp"
+    android:id="@+id/background"
+    tools:context=".MainActivity">
+
+    <nl.dionsegijn.konfetti.KonfettiView
+        android:id="@+id/viewKonfetti"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+
+    <Button
+        android:id="@+id/guess"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:bottomRightRadius="10dp"
+        android:bottomLeftRadius="10dp"
+        android:topLeftRadius="10dp"
+        android:topRightRadius="10dp"
+        android:text="Guess" />
+
+    <TextView
+        android:id="@+id/score"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:text="Score: 0" />
+
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:id="@+id/rgb_view"
+        android:layout_alignTop="@+id/guess">
+
+
+        <EditText
+            android:id="@+id/r_value"
+            android:layout_width="65dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true"
+            android:ems="10"
+            android:hint="R"
+            android:inputType="number"
+            android:maxLength="3" />
+
+        <EditText
+            android:id="@+id/g_value"
+            android:layout_width="65dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_toEndOf="@+id/r_value"
+            android:ems="10"
+            android:hint="G"
+            android:inputType="number"
+            android:maxLength="3" />
+
+        <EditText
+            android:id="@+id/b_value"
+            android:layout_width="65dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_toEndOf="@+id/g_value"
+            android:ems="10"
+            android:hint="B"
+            android:inputType="number"
+            android:maxLength="3" />
+
+    </RelativeLayout>
+
+    <EditText
+        android:id="@+id/hex_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/guess"
+        android:layout_alignParentStart="true"
+        android:ems="10"
+        android:inputType="textVisiblePassword"
+        android:digits="0123456789abcdef"
+        android:maxLength="6"
+        android:hint="Hex" />
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/cmyk_view"
+        android:layout_above="@+id/hex_value">
+
+    <EditText
+        android:id="@+id/c_value"
+        android:layout_width="65dp"
+        android:layout_height="wrap_content"
+
+        android:layout_alignParentStart="true"
+        android:ems="10"
+        android:inputType="number"
+        android:maxLength="3"
+        android:hint="C" />
+
+    <EditText
+        android:id="@+id/m_value"
+        android:layout_width="65dp"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@+id/c_value"
+        android:ems="10"
+        android:inputType="number"
+        android:maxLength="3"
+        android:hint="M" />
+
+    <EditText
+        android:id="@+id/y_value"
+        android:layout_width="65dp"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@+id/m_value"
+        android:ems="10"
+        android:inputType="number"
+        android:maxLength="3"
+        android:hint="Y" />
+
+    <EditText
+        android:id="@+id/k_value"
+        android:layout_width="65dp"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@+id/y_value"
+        android:ems="10"
+        android:hint="K"
+        android:maxLength="3"
+        android:inputType="number" />
+
+    </RelativeLayout>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/settings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:clickable="true"
+        app:srcCompat="@android:drawable/ic_menu_manage" />
+
+    <TextView
+        android:id="@+id/cheatMode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/preset_color"
+        android:layout_alignParentStart="true"
+        android:visibility="invisible"
+        android:text="TextView" />
+
+    <com.jaredrummler.materialspinner.MaterialSpinner
+        android:id="@+id/preset_color"
+        android:layout_width="281dp"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/guess"
+        android:layout_above="@+id/cmyk_view"
+        android:layout_alignParentStart="true" />
+
+
+</RelativeLayout>
