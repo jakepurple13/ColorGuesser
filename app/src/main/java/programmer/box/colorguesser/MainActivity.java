@@ -116,6 +116,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
         presetColor = findViewById(R.id.preset_color);
 
         presetColor.setItems(getResources().getStringArray(R.array.colors));
+
         presetColor.setOnItemSelectedListener(new MaterialSpinner.OnItemSelectedListener<String>() {
 
             @Override public void onItemSelected(MaterialSpinner view, int position, long id, String item) {
@@ -521,6 +522,8 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
         kValue.setTextColor(color);
         presetColor.setTextColor(getComplimentaryColor(Color.valueOf(color)));
 
+
+
         score.setHintTextColor(color);
         rValue.setHintTextColor(color);
         gValue.setHintTextColor(color);
@@ -592,44 +595,62 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
         config.setHeadingTvColor(currentColor.toArgb());
 
         //presetColor.setBackgroundColor(currentColor.toArgb());
-        presetColor.setBackgroundColor(getComplimentaryColor(currentColor));
+        presetColor.setBackgroundColor(UtilImage.lighter(getComplimentaryColor(currentColor), 0.5f));
+        presetColor.setSelectedIndex(0);
 
     }
 
     public void setPresets(int color) {
 
-        int A1 = (color >> 24) & 0xff; // or color >>> 24
-        int R1 = (color >> 16) & 0xff;
-        int G1 = (color >>  8) & 0xff;
-        int B1 = (color      ) & 0xff;
+        if(color==Color.TRANSPARENT) {
 
-        String hex1 = Integer.toHexString(color).substring(2);
+            rValue.setText("");
+            gValue.setText("");
+            bValue.setText("");
 
-        double computedC = 1 - (R1 / RGB_MAX);
-        double computedM = 1 - (G1 / RGB_MAX);
-        double computedY = 1 - (B1 / RGB_MAX);
+            hexValue.setText("");
 
-        double minCMY = Math.min(computedC, Math.min(computedM, computedY));
+            cValue.setText("");
+            mValue.setText("");
+            yValue.setText("");
+            kValue.setText("");
 
-        computedC = (computedC - minCMY) / (1 - minCMY);
-        computedM = (computedM - minCMY) / (1 - minCMY);
-        computedY = (computedY - minCMY) / (1 - minCMY);
-        double computedK = minCMY;
+        } else {
 
-        int C = (int) (computedC*100);
-        int M = (int) (computedM*100);
-        int Y = (int) (computedY*100);
-        int K = (int) (computedK*100)+1;
+            int A1 = (color >> 24) & 0xff; // or color >>> 24
+            int R1 = (color >> 16) & 0xff;
+            int G1 = (color >> 8) & 0xff;
+            int B1 = (color) & 0xff;
 
-        rValue.setText(R1 + "");
-        gValue.setText(G1 + "");
-        bValue.setText(B1 + "");
-        hexValue.setText(hex1 + "");
+            String hex1 = Integer.toHexString(color).substring(2);
 
-        cValue.setText(C + "");
-        mValue.setText(M + "");
-        yValue.setText(Y + "");
-        kValue.setText(K + "");
+            double computedC = 1 - (R1 / RGB_MAX);
+            double computedM = 1 - (G1 / RGB_MAX);
+            double computedY = 1 - (B1 / RGB_MAX);
+
+            double minCMY = Math.min(computedC, Math.min(computedM, computedY));
+
+            computedC = (computedC - minCMY) / (1 - minCMY);
+            computedM = (computedM - minCMY) / (1 - minCMY);
+            computedY = (computedY - minCMY) / (1 - minCMY);
+            double computedK = minCMY;
+
+            int C = (int) (computedC * 100);
+            int M = (int) (computedM * 100);
+            int Y = (int) (computedY * 100);
+            int K = (int) (computedK * 100) + 1;
+
+            rValue.setText(R1 + "");
+            gValue.setText(G1 + "");
+            bValue.setText(B1 + "");
+            hexValue.setText(hex1 + "");
+
+            cValue.setText(C + "");
+            mValue.setText(M + "");
+            yValue.setText(Y + "");
+            kValue.setText(K + "");
+
+        }
 
     }
 
