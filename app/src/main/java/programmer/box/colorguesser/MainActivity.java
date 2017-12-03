@@ -8,6 +8,9 @@ import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.ColorSpace;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.Drawable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.graphics.ColorUtils;
 import android.support.v7.app.AppCompatActivity;
@@ -33,6 +36,7 @@ import com.skydoves.powermenu.PowerMenuItem;
 import com.wooplr.spotlight.SpotlightConfig;
 import com.wooplr.spotlight.utils.SpotlightSequence;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import io.fabric.sdk.android.Fabric;
 import org.ankit.perfectdialog.EasyDialog;
 import org.ankit.perfectdialog.EasyDialogListener;
@@ -87,7 +91,10 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
 
     TextView cheat;
 
+    //MaterialSpinner presetColor;
     MaterialSpinner presetColor;
+
+    CircleImageView colorToGuess;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,11 +116,18 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                 })
                 .install();
 
+        colorToGuess = findViewById(R.id.profile_image);
+
         guess = findViewById(R.id.guess);
+
+        //guess.setBackgroundResource(R.drawable.rounded_corners);
 
         cheat = findViewById(R.id.cheatMode);
 
         presetColor = findViewById(R.id.preset_color);
+
+        //presetColor.setBackgroundResource(R.drawable.rounded_corners);
+        //presetColor.setBackgroundColor(guess.getSolidColor());
 
         presetColor.setItems(getResources().getStringArray(R.array.colors));
 
@@ -330,14 +344,17 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                 String checkedMark = "\u2713";
                 String xMark = "X";
 
-                String hexInfo = "Hex: #" + Integer.toHexString(currentColor.toArgb()).substring(2) + "\t" + ((Integer.toHexString(currentColor.toArgb()).substring(2)).equals(hexGuess) ? checkedMark : xMark);
-                String rInfo = "R: " + RCol + "\t" + ((RCol+"").equals(rGuessed) ? checkedMark : xMark);
-                String gInfo = "G: " + G + "\t" + ((G+"").equals(gGuessed) ? checkedMark : xMark);
-                String bInfo = "B: " + B + "\t" + ((B+"").equals(bGuessed) ? checkedMark : xMark);
-                String cInfo = "C: " + C + "\t" + ((C+"").equals(cGuessed) ? checkedMark : xMark);
-                String mInfo = "M: " + M + "\t" + ((M+"").equals(mGuessed) ? checkedMark : xMark);
-                String yInfo = "Y: " + Y + "\t" + ((Y+"").equals(yGuessed) ? checkedMark : xMark);
-                String kInfo = "K: " + K + "\t" + ((K+"").equals(kGuessed) ? checkedMark : xMark);
+                String hexInfo = "Hex: #" + Integer.toHexString(currentColor.toArgb()).substring(2) + "\t"
+                        + ((Integer.toHexString(currentColor.toArgb()).substring(2)).equals(hexGuess) ? checkedMark : xMark) +
+                        "\t" + hexGuess;
+                String rInfo = "R: " + RCol + "\t" + ((RCol+"").equals(rGuessed) ? checkedMark : xMark) + "\t" + rGuessed;
+                String gInfo = "G: " + G + "\t" + ((G+"").equals(gGuessed) ? checkedMark : xMark) + "\t" + gGuessed;
+                String bInfo = "B: " + B + "\t" + ((B+"").equals(bGuessed) ? checkedMark : xMark) + "\t" + bGuessed;
+                String cInfo = "C: " + C + "\t" + ((C+"").equals(cGuessed) ? checkedMark : xMark) + "\t" + cGuessed;
+                String mInfo = "M: " + M + "\t" + ((M+"").equals(mGuessed) ? checkedMark : xMark) + "\t" + mGuessed;
+                String yInfo = "Y: " + Y + "\t" + ((Y+"").equals(yGuessed) ? checkedMark : xMark) + "\t" + yGuessed;
+                String kInfo = "K: " + K + "\t" + ((K+"").equals(kGuessed) ? checkedMark : xMark) + "\t" + kGuessed;
+                String scoreInfo = "Points Scored: " + addedScore;
 
                 PowerMenu powerMenu = new PowerMenu.Builder(MainActivity.this)
                         //.addItemList(list) // list has "Novel", "Poerty", "Art"
@@ -349,6 +366,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                         .addItem(new PowerMenuItem(mInfo, false))
                         .addItem(new PowerMenuItem(yInfo, false))
                         .addItem(new PowerMenuItem(kInfo, false))
+                        .addItem(new PowerMenuItem(scoreInfo, false))
                         .setAnimation(MenuAnimation.SHOWUP_TOP_LEFT) // Animation start point (TOP | LEFT)
                         .setMenuRadius(10f)
                         .setMenuShadow(10f)
@@ -417,15 +435,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                             case "Show Tutorial":
 
                                 SpotlightSequence.resetSpotlights(MainActivity.this);
-                                SpotlightSequence sequence = SpotlightSequence.getInstance(MainActivity.this, config);
-                                sequence.addSpotlight(rgb, getString(R.string.rgb), getString(R.string.rgb_info), "rgb");
-                                sequence.addSpotlight(hexValue, getString(R.string.hex), getString(R.string.hex_info), "hex");
-                                sequence.addSpotlight(cmyk, getString(R.string.cmyk), getString(R.string.cmyk_info), "cmyk");
-                                sequence.addSpotlight(presetColor, getString(R.string.preset), getString(R.string.preset_info), "preset");
-                                sequence.addSpotlight(guess, getString(R.string.guess), getString(R.string.guess_info), "guess");
-                                sequence.addSpotlight(score, getString(R.string.score), getString(R.string.score_info), "score");
-                                sequence.addSpotlight(fab, getString(R.string.settings), getString(R.string.settings_info), "settings");
-                                sequence.startSequence();
+                                showTutorial();
 
                                 break;
 
@@ -548,9 +558,14 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
         kValue.setText("");
 
         currentColor = getRandomColor();
-        layout.setBackgroundColor(currentColor.toArgb());
+        //layout.setBackgroundColor(currentColor.toArgb());
+        //colorToGuess.setCircleBackgroundColor(currentColor.toArgb());
 
-        setTextColors(getComplimentaryColor(currentColor));
+        Drawable d = colorToGuess.getDrawable();
+        d.setColorFilter(new PorterDuffColorFilter(currentColor.toArgb(), PorterDuff.Mode.MULTIPLY));
+        colorToGuess.setImageDrawable(d);
+
+        //setTextColors(getComplimentaryColor(currentColor));
 
         fab.setBackgroundTintList(new ColorStateList(new int[][]{new int[]{0}}, new int[]{getComplimentaryColor(currentColor)}));
 
@@ -574,10 +589,10 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
         computedY = (computedY - minCMY) / (1 - minCMY);
         double computedK = minCMY;
 
-        computedC = Double.parseDouble(String.format("%.2f", computedC));
-        computedM = Double.parseDouble(String.format("%.2f", computedM));
-        computedY = Double.parseDouble(String.format("%.2f", computedY));
-        computedK = Double.parseDouble(String.format("%.2f", computedK));
+        computedC = Double.parseDouble(String.format("%.3f", computedC));
+        computedM = Double.parseDouble(String.format("%.3f", computedM));
+        computedY = Double.parseDouble(String.format("%.3f", computedY));
+        computedK = Double.parseDouble(String.format("%.3f", computedK));
 
         String msg = "A:" + A1 + "|" + "R:" + R1 + "|" + "G:" + G1 + "|" + "B:" + B1 + "| Hex: " + hex1 +
                 " | C: " + computedC + " | M: " + computedM + " | Y: " + computedY + " | K: " + computedK;
@@ -595,7 +610,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
         config.setHeadingTvColor(currentColor.toArgb());
 
         //presetColor.setBackgroundColor(currentColor.toArgb());
-        presetColor.setBackgroundColor(UtilImage.lighter(getComplimentaryColor(currentColor), 0.5f));
+        //presetColor.setBackgroundColor(UtilImage.lighter(getComplimentaryColor(currentColor), 0.5f));
         presetColor.setSelectedIndex(0);
 
     }
@@ -695,6 +710,19 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
         super.onStop();
     }
 
+    public void showTutorial() {
+        SpotlightSequence sequence = SpotlightSequence.getInstance(MainActivity.this, config);
+        //sequence.addSpotlight(colorToGuess, "The Main Color", "This is the color you are trying to guess", "colortoguess");
+        sequence.addSpotlight(rgb, getString(R.string.rgb), getString(R.string.rgb_info), "rgb");
+        sequence.addSpotlight(hexValue, getString(R.string.hex), getString(R.string.hex_info), "hex");
+        sequence.addSpotlight(cmyk, getString(R.string.cmyk), getString(R.string.cmyk_info), "cmyk");
+        sequence.addSpotlight(presetColor, getString(R.string.preset), getString(R.string.preset_info), "preset");
+        sequence.addSpotlight(guess, getString(R.string.guess), getString(R.string.guess_info), "guess");
+        sequence.addSpotlight(score, getString(R.string.score), getString(R.string.score_info), "score");
+        sequence.addSpotlight(fab, getString(R.string.settings), getString(R.string.settings_info), "settings");
+        sequence.startSequence();
+    }
+
     public void firstTime() {
         SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor=sharedPref.edit();
@@ -717,15 +745,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                         public void onClick(DialogInterface dialogInterface, int i) {
 
                             //SpotlightSequence.resetSpotlights(this);
-                            SpotlightSequence sequence = SpotlightSequence.getInstance(MainActivity.this, config);
-                            sequence.addSpotlight(rgb, getString(R.string.rgb), getString(R.string.rgb_info), "rgb");
-                            sequence.addSpotlight(hexValue, getString(R.string.hex), getString(R.string.hex_info), "hex");
-                            sequence.addSpotlight(cmyk, getString(R.string.cmyk), getString(R.string.cmyk_info), "cmyk");
-                            sequence.addSpotlight(presetColor, getString(R.string.preset), getString(R.string.preset_info), "preset");
-                            sequence.addSpotlight(guess, getString(R.string.guess), getString(R.string.guess_info), "guess");
-                            sequence.addSpotlight(score, getString(R.string.score), getString(R.string.score_info), "score");
-                            sequence.addSpotlight(fab, getString(R.string.settings), getString(R.string.settings_info), "settings");
-                            sequence.startSequence();
+                            showTutorial();
 
 
                         }
