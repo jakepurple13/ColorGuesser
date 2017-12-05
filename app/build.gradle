@@ -20,8 +20,8 @@ android {
         applicationId "programmer.box.colorguesser"
         minSdkVersion 24
         targetSdkVersion 27
-        versionCode 5
-        versionName "4.1"
+        versionCode 6
+        versionName "5.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

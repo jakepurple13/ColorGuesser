@@ -85,6 +85,26 @@ public class SpotlightSequence {
         return instance;
     }
 
+    public SpotlightSequence addSpotlight(View target, String title, String subtitle, String usageId, boolean arc){
+        Log.d(TAG, "Adding " + usageId);
+        SpotlightView.Builder builder = new SpotlightView.Builder(activity)
+                .setConfiguration(config)
+                .headingTvText(title)
+                .usageId(usageId)
+                .subHeadingTvText(subtitle)
+                .target(target)
+                .showTargetArc(arc)
+                .setListener(new SpotlightListener() {
+                    @Override
+                    public void onUserClicked(String s) {
+                        playNext();
+                    }
+                })
+                .enableDismissAfterShown(true);
+        queue.add(builder);
+        return instance;
+    }
+
     /**
      * Adds a new SpotlightView.Builder object to {@link this.queue}
      * @param target View where the spotlight will focus

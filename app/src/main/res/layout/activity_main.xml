@@ -17,9 +17,9 @@
     <de.hdodenhof.circleimageview.CircleImageView
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/profile_image"
-        android:layout_width="202dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/settings"
+        android:layout_below="@+id/settings_lin"
         android:layout_above="@id/cheatMode"
         android:layout_centerHorizontal="true"
         android:src="@color/white"
@@ -32,10 +32,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
-        android:bottomRightRadius="10dp"
-        android:bottomLeftRadius="10dp"
-        android:topLeftRadius="10dp"
-        android:topRightRadius="10dp"
+        android:background="@drawable/rounded_corners"
         android:text="Guess" />
 
     <TextView
@@ -44,6 +41,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
+        android:textColor="#000000"
         android:text="Score: 0" />
 
 
@@ -151,14 +149,21 @@
 
     </RelativeLayout>
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/settings"
+    <LinearLayout
+        android:id="@+id/settings_lin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
-        android:clickable="true"
-        app:srcCompat="@android:drawable/ic_menu_manage" />
+        android:background="@drawable/fab_border"
+        android:padding="3dp">
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/settings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            app:srcCompat="@android:drawable/ic_menu_manage" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/cheatMode"
@@ -169,12 +174,21 @@
         android:visibility="invisible"
         android:text="TextView" />
 
-    <com.jaredrummler.materialspinner.MaterialSpinner
+   <!-- <com.jaredrummler.materialspinner.MaterialSpinner
         android:id="@+id/preset_color"
         android:layout_width="281dp"
         android:layout_height="wrap_content"
         android:layout_alignStart="@+id/guess"
         android:layout_above="@+id/cmyk_view"
-        android:layout_alignParentStart="true" />
+        android:background="@drawable/rounded_corners"
+        android:layout_alignParentStart="true" />-->
+    <Spinner
+        android:id="@+id/preset_color"
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:layout_above="@+id/cmyk_view"
+        android:layout_alignParentStart="true"
+        android:layout_alignStart="@+id/guess"
+        android:background="@drawable/rounded_corners_drop_down" />
 
 </RelativeLayout>

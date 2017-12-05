@@ -1114,7 +1114,6 @@ public class SpotlightView extends FrameLayout {
             return this;
         }
 
-
         public Builder dismissOnTouch(boolean dismissOnTouch) {
             spotlightView.setDismissOnTouch(dismissOnTouch);
             return this;

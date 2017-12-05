@@ -15,6 +15,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.graphics.ColorUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -34,6 +35,7 @@ import com.skydoves.powermenu.OnMenuItemClickListener;
 import com.skydoves.powermenu.PowerMenu;
 import com.skydoves.powermenu.PowerMenuItem;
 import com.wooplr.spotlight.SpotlightConfig;
+import com.wooplr.spotlight.SpotlightView;
 import com.wooplr.spotlight.utils.SpotlightSequence;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -93,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
     TextView cheat;
 
     //MaterialSpinner presetColor;
-    MaterialSpinner presetColor;
+    Spinner presetColor;
 
     CircleImageView colorToGuess;
 
@@ -117,7 +119,16 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                 })
                 .install();
 
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int height = displayMetrics.heightPixels;
+        int width = displayMetrics.widthPixels;
+
         colorToGuess = findViewById(R.id.profile_image);
+
+        colorToGuess.getLayoutParams().width=(width/2);
+
+        colorToGuess.requestLayout();
 
         guess = findViewById(R.id.guess);
 
@@ -127,10 +138,48 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
 
         presetColor = findViewById(R.id.preset_color);
 
+        final String[] colors = getResources().getStringArray(R.array.colors);
+
+        // Create an ArrayAdapter using the string array and a default spinner layout
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.colors, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        presetColor.setAdapter(adapter);
+
+        presetColor.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                UtilLog.e(colors[i]);
+
+                int color;
+
+                if(colors[i].equals("")) {
+                    color = Color.TRANSPARENT;
+                } else if(colors[i].equals("Dark Gray")) {
+                    color = Color.DKGRAY;
+                } else if(colors[i].equals("Light Gray")) {
+                    color = Color.LTGRAY;
+                } else {
+                    color = Color.parseColor(colors[i]);
+                }
+
+                UtilLog.e(color + " is the color " + colors[i]);
+
+                setPresets(color);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                setPresets(Color.TRANSPARENT);
+            }
+        });
+
         //presetColor.setBackgroundResource(R.drawable.rounded_corners);
         //presetColor.setBackgroundColor(guess.getSolidColor());
 
-        presetColor.setItems(getResources().getStringArray(R.array.colors));
+        /*presetColor.setItems(getResources().getStringArray(R.array.colors));
 
         presetColor.setOnItemSelectedListener(new MaterialSpinner.OnItemSelectedListener<String>() {
 
@@ -154,7 +203,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                 setPresets(color);
 
             }
-        });
+        });*/
 
         rValue = findViewById(R.id.r_value);
         gValue = findViewById(R.id.g_value);
@@ -533,7 +582,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
         yValue.setTextColor(color);
         kValue.setTextColor(color);
         //presetColor.setTextColor(getComplimentaryColor(Color.valueOf(color)));
-        presetColor.setTextColor(getComplimentaryColor(color));
+        //presetColor.setTextColor(getComplimentaryColor(color));
 
 
         score.setHintTextColor(color);
@@ -625,7 +674,8 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
 
         //presetColor.setBackgroundColor(currentColor.toArgb());
         //presetColor.setBackgroundColor(UtilImage.lighter(getComplimentaryColor(currentColor), 0.5f));
-        presetColor.setSelectedIndex(0);
+        //presetColor.setSelectedIndex(0);
+        //presetColor.
 
     }
 
@@ -728,7 +778,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
 
     public void showTutorial() {
         SpotlightSequence sequence = SpotlightSequence.getInstance(MainActivity.this, config);
-        //sequence.addSpotlight(colorToGuess, "The Main Color", "This is the color you are trying to guess", "colortoguess");
+        sequence.addSpotlight(colorToGuess, getString(R.string.color_guess), getString(R.string.color_guess_info), "colortoguess", false);
         sequence.addSpotlight(rgb, getString(R.string.rgb), getString(R.string.rgb_info), "rgb");
         sequence.addSpotlight(hexValue, getString(R.string.hex), getString(R.string.hex_info), "hex");
         sequence.addSpotlight(cmyk, getString(R.string.cmyk), getString(R.string.cmyk_info), "cmyk");

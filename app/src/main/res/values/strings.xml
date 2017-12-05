@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Color Guesser</string>
 
+    <string name="color_guess">The Color</string>
     <string name="rgb">RGB</string>
     <string name="hex">Hex</string>
     <string name="cmyk">CMYK</string>
@@ -8,6 +9,7 @@
     <string name="guess">Guess</string>
     <string name="score">Score</string>
     <string name="settings">Settings</string>
+    <string name="color_guess_info">This is the color you are trying to guess</string>
     <string name="rgb_info">Guess the RGB values (0–255 for each value)</string>
     <string name="hex_info">Guess the Hex value (0-f)</string>
     <string name="cmyk_info">Guess the CMYK values (0–100 for each one)</string>
