@@ -677,7 +677,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
         //presetColor.setBackgroundColor(currentColor.toArgb());
         //presetColor.setBackgroundColor(UtilImage.lighter(getComplimentaryColor(currentColor), 0.5f));
         //presetColor.setSelectedIndex(0);
-        //presetColor.
+        presetColor.setSelection(0);
 
     }
 
@@ -705,9 +705,9 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
 
             String hex1 = Integer.toHexString(color).substring(2);
 
-            double computedC = 1 - (R1 / RGB_MAX);
-            double computedM = 1 - (G1 / RGB_MAX);
-            double computedY = 1 - (B1 / RGB_MAX);
+            double computedC = 1 - (Double.parseDouble(R1+"") / RGB_MAX);
+            double computedM = 1 - (Double.parseDouble(G1+"") / RGB_MAX);
+            double computedY = 1 - (Double.parseDouble(B1+"") / RGB_MAX);
 
             double minCMY = Math.min(computedC, Math.min(computedM, computedY));
 
