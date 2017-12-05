@@ -253,6 +253,7 @@ public class KonamiCodeLayout extends FrameLayout implements KonamiSequenceListe
         } else {
             mCallback.onFinish();
             this.removeView(this);
+            this.mCallback = null;
         }
     }
 }

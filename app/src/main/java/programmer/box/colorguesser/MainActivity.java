@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
+import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.ColorSpace;
 import android.graphics.PorterDuff;
@@ -138,11 +139,11 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
 
         presetColor = findViewById(R.id.preset_color);
 
-        final String[] colors = getResources().getStringArray(R.array.colors);
+        final String[] colors = getResources().getStringArray(R.array.colorNames);
 
         // Create an ArrayAdapter using the string array and a default spinner layout
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.colors, android.R.layout.simple_spinner_item);
+                R.array.colorNames, android.R.layout.simple_spinner_item);
         // Specify the layout to use when the list of choices appears
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // Apply the adapter to the spinner
@@ -157,15 +158,16 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
 
                 if(colors[i].equals("")) {
                     color = Color.TRANSPARENT;
-                } else if(colors[i].equals("Dark Gray")) {
-                    color = Color.DKGRAY;
-                } else if(colors[i].equals("Light Gray")) {
-                    color = Color.LTGRAY;
                 } else {
-                    color = Color.parseColor(colors[i]);
+                    //color = Color.parseColor(colors[i]);
+                    TypedArray ta = getResources().obtainTypedArray(R.array.colors);
+                    color = ta.getColor(i-1, 0);
+                    ta.recycle();
                 }
 
                 UtilLog.e(color + " is the color " + colors[i]);
+
+                //layout.setBackgroundColor(color);
 
                 setPresets(color);
             }
@@ -717,7 +719,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
             int C = (int) (computedC * 100);
             int M = (int) (computedM * 100);
             int Y = (int) (computedY * 100);
-            int K = (int) (computedK * 100) + 1;
+            int K = (int) (computedK * 100);
 
             rValue.setText(R1 + "");
             gValue.setText(G1 + "");
