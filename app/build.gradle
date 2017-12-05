@@ -18,7 +18,7 @@ android {
     compileSdkVersion 27
     defaultConfig {
         applicationId "programmer.box.colorguesser"
-        minSdkVersion 26
+        minSdkVersion 24
         targetSdkVersion 27
         versionCode 5
         versionName "4.1"

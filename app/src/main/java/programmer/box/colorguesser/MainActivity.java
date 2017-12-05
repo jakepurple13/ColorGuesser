@@ -78,7 +78,8 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
 
     Random gen = new Random();
 
-    Color currentColor;
+    //Color currentColor;
+    int currentColor;
 
     int currentScore = 0;
 
@@ -207,7 +208,8 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
 
                 int addedScore = 0;
 
-                int color = currentColor.toArgb();
+                //int color = currentColor.toArgb();
+                int color = currentColor;
 
                 int A = (color >> 24) & 0xff; // or color >>> 24
                 int RCol = (color >> 16) & 0xff;
@@ -283,9 +285,9 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                 String yGuessed = yValue.getText().toString();
                 String kGuessed = kValue.getText().toString();
 
-                double computedC = 1 - (currentColor.red() / RGB_MAX);
-                double computedM = 1 - (currentColor.green() / RGB_MAX);
-                double computedY = 1 - (currentColor.blue() / RGB_MAX);
+                double computedC = 1 - (Double.parseDouble(RCol+"") / RGB_MAX);
+                double computedM = 1 - (Double.parseDouble(G+"") / RGB_MAX);
+                double computedY = 1 - (Double.parseDouble(B+"") / RGB_MAX);
 
                 double minCMY = Math.min(computedC, Math.min(computedM, computedY));
 
@@ -301,7 +303,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                 int C = (int) (computedC*100);
                 int M = (int) (computedM*100);
                 int Y = (int) (computedY*100);
-                int K = (int) (computedK*100)+1;
+                int K = (int) (computedK*100);
 
                 if(!cGuessed.equals("") && !mGuessed.equals("") && !yGuessed.equals("") && !kGuessed.equals("")) {
 
@@ -336,7 +338,6 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
 
                 currentScore+=addedScore;
 
-
                 //------Add Scores------
 
                 score.setText(getString(R.string.scores, currentScore));
@@ -344,8 +345,11 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                 String checkedMark = "\u2713";
                 String xMark = "X";
 
-                String hexInfo = "Hex: #" + Integer.toHexString(currentColor.toArgb()).substring(2) + "\t"
+                /*String hexInfo = "Hex: #" + Integer.toHexString(currentColor.toArgb()).substring(2) + "\t"
                         + ((Integer.toHexString(currentColor.toArgb()).substring(2)).equals(hexGuess) ? checkedMark : xMark) +
+                        "\t" + hexGuess;*/
+                String hexInfo = "Hex: #" + Integer.toHexString(currentColor).substring(2) + "\t"
+                        + ((Integer.toHexString(currentColor).substring(2)).equals(hexGuess) ? checkedMark : xMark) +
                         "\t" + hexGuess;
                 String rInfo = "R: " + RCol + "\t" + ((RCol+"").equals(rGuessed) ? checkedMark : xMark) + "\t" + rGuessed;
                 String gInfo = "G: " + G + "\t" + ((G+"").equals(gGuessed) ? checkedMark : xMark) + "\t" + gGuessed;
@@ -374,7 +378,8 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                         .setTextColor(getComplimentaryColor(currentColor))
                         .setSelectedTextColor(Color.WHITE)
                         //.setMenuColor(Color.WHITE)
-                        .setMenuColor(currentColor.toArgb())
+                        //.setMenuColor(currentColor.toArgb())
+                        .setMenuColor(currentColor)
                         .setSelectedMenuColor(Color.WHITE)
                         .setShowBackground(false)
                         .setLifecycleOwner(MainActivity.this)
@@ -384,17 +389,13 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
 
                 //--------RESET----------
 
-                String rgb = currentColor.red() + "|" + currentColor.green() + "|" + currentColor.blue();
+                //String rgb = currentColor.red() + "|" + currentColor.green() + "|" + currentColor.blue();
 
-                String hex = "#" + Integer.toHexString(currentColor.toArgb()).substring(2);
-
+                //String hex = "#" + Integer.toHexString(currentColor.toArgb()).substring(2);
+                /*
                 UtilLog.e("A:" + A + "|" + "RCol:" + RCol + "|" + "G:" + G + "|" + "B:" + B +
                         " | Hex: " + hex +
-                        " | C: " + computedC + " | M: " + computedM + " | Y: " + computedY + " | K: " + computedK);
-
-                // static int	compositeColors(int foreground, int background)
-                // Composite two potentially translucent colors over each other and returns the result.
-                // ColorUtils.compositeColors()
+                        " | C: " + computedC + " | M: " + computedM + " | Y: " + computedY + " | K: " + computedK);*/
 
                 reset();
 
@@ -414,7 +415,8 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                         .setMenuShadow(10f)
                         //.setTextColor(Color.BLACK)
                         //.setTextColor(getComplimentaryColor(currentColor))
-                        .setTextColor(currentColor.toArgb())
+                        //.setTextColor(currentColor.toArgb())
+                        .setTextColor(currentColor)
                         .setSelectedTextColor(Color.WHITE)
                         //.setMenuColor(Color.WHITE)
                         //.setMenuColor(currentColor.toArgb())
@@ -474,13 +476,13 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
 
     }
 
-    public static int getComplimentaryColor(Color color) {
+    public static int getComplimentaryColor(int color) {
 
-        int color1 = color.toArgb();
+        //int color1 = color.toArgb();
 
-        return Color.rgb(RGB_MAX-Color.red(color1),
-                RGB_MAX-Color.green(color1),
-                RGB_MAX-Color.blue(color1));
+        return Color.rgb(RGB_MAX-Color.red(color),
+                RGB_MAX-Color.green(color),
+                RGB_MAX-Color.blue(color));
     }
 
     public int getScore(int actual, int guessed) {
@@ -530,8 +532,8 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
         mValue.setTextColor(color);
         yValue.setTextColor(color);
         kValue.setTextColor(color);
-        presetColor.setTextColor(getComplimentaryColor(Color.valueOf(color)));
-
+        //presetColor.setTextColor(getComplimentaryColor(Color.valueOf(color)));
+        presetColor.setTextColor(getComplimentaryColor(color));
 
 
         score.setHintTextColor(color);
@@ -562,25 +564,33 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
         //colorToGuess.setCircleBackgroundColor(currentColor.toArgb());
 
         Drawable d = colorToGuess.getDrawable();
-        d.setColorFilter(new PorterDuffColorFilter(currentColor.toArgb(), PorterDuff.Mode.MULTIPLY));
+        //d.setColorFilter(new PorterDuffColorFilter(currentColor.toArgb(), PorterDuff.Mode.MULTIPLY));
+        d.setColorFilter(new PorterDuffColorFilter(currentColor, PorterDuff.Mode.MULTIPLY));
         colorToGuess.setImageDrawable(d);
 
         //setTextColors(getComplimentaryColor(currentColor));
 
         fab.setBackgroundTintList(new ColorStateList(new int[][]{new int[]{0}}, new int[]{getComplimentaryColor(currentColor)}));
 
-        int color1 = currentColor.toArgb();
+        //int color1 = currentColor.toArgb();
+        int color1 = currentColor;
 
         int A1 = (color1 >> 24) & 0xff; // or color >>> 24
         int R1 = (color1 >> 16) & 0xff;
         int G1 = (color1 >>  8) & 0xff;
         int B1 = (color1      ) & 0xff;
 
-        String hex1 = "#" + Integer.toHexString(currentColor.toArgb()).substring(2);
+        /*String hex1 = "#" + Integer.toHexString(currentColor.toArgb()).substring(2);
 
         double computedC = 1 - (currentColor.red() / RGB_MAX);
         double computedM = 1 - (currentColor.green() / RGB_MAX);
-        double computedY = 1 - (currentColor.blue() / RGB_MAX);
+        double computedY = 1 - (currentColor.blue() / RGB_MAX);*/
+
+        String hex1 = "#" + Integer.toHexString(currentColor).substring(2);
+
+        double computedC = 1 - (Double.parseDouble(R1+"") / RGB_MAX);
+        double computedM = 1 - (Double.parseDouble(G1+"") / RGB_MAX);
+        double computedY = 1 - (Double.parseDouble(B1+"") / RGB_MAX);
 
         double minCMY = Math.min(computedC, Math.min(computedM, computedY));
 
@@ -594,7 +604,8 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
         computedY = Double.parseDouble(String.format("%.3f", computedY));
         computedK = Double.parseDouble(String.format("%.3f", computedK));
 
-        String msg = "A:" + A1 + "|" + "R:" + R1 + "|" + "G:" + G1 + "|" + "B:" + B1 + "| Hex: " + hex1 +
+        String msg = "A:" + A1 + "|" + "R:" + R1 + "|" + "G:" + G1 + "|" + "B:" + B1 +
+                "| Hex: " + hex1 +
                 " | C: " + computedC + " | M: " + computedM + " | Y: " + computedY + " | K: " + computedK;
 
         UtilLog.e(msg);
@@ -606,8 +617,11 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
         //config.setLineAndArcColor(getComplimentaryColor(currentColor));
         //config.setHeadingTvColor(getComplimentaryColor(currentColor));
 
-        config.setLineAndArcColor(currentColor.toArgb());
-        config.setHeadingTvColor(currentColor.toArgb());
+        //config.setLineAndArcColor(currentColor.toArgb());
+        //config.setHeadingTvColor(currentColor.toArgb());
+
+        config.setLineAndArcColor(currentColor);
+        config.setHeadingTvColor(currentColor);
 
         //presetColor.setBackgroundColor(currentColor.toArgb());
         //presetColor.setBackgroundColor(UtilImage.lighter(getComplimentaryColor(currentColor), 0.5f));
@@ -669,11 +683,13 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
 
     }
 
-    public Color getRandomColor() {
+    public int getRandomColor() {
+        int a = 255;//gen.nextInt(RGB_MAX+1);
         int r = gen.nextInt(RGB_MAX+1);
         int g = gen.nextInt(RGB_MAX+1);
         int b = gen.nextInt(RGB_MAX+1);
-        return Color.valueOf(Color.rgb(r,g,b));
+        //return Color.valueOf(Color.rgb(r,g,b));
+        return Color.argb(a,r,g,b);
     }
 
     public void confetti(int... colors) {
@@ -725,12 +741,9 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
 
     public void firstTime() {
         SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor=sharedPref.edit();
+        final SharedPreferences.Editor editor=sharedPref.edit();
         boolean  firstTime=sharedPref.getBoolean("first", true);
         if(firstTime) {
-            editor.putBoolean("first",false);
-            //For commit the changes, Use either editor.commit(); or  editor.apply();.
-            editor.apply();
 
             new EasyDialog.Builder(this)
                     .setTitle("Dedication")
@@ -743,6 +756,10 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                     .setConfirmBtn("OK!", new EasyDialogListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
+
+                            editor.putBoolean("first",false);
+                            //For commit the changes, Use either editor.commit(); or  editor.apply();.
+                            editor.apply();
 
                             //SpotlightSequence.resetSpotlights(this);
                             showTutorial();
@@ -766,6 +783,15 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
             //sequence.addSpotlight(guess, getString(R.string.rgb), getString(R.string.rgb_info), "rgb");
             //sequence.startSequence();
         }
+
+
+    }
+
+    public void getRGBOfColor(int color) {
+        int A = (color >> 24) & 0xff; // or color >>> 24
+        int RCol = (color >> 16) & 0xff;
+        int G = (color >>  8) & 0xff;
+        int B = (color      ) & 0xff;
     }
 
 }
