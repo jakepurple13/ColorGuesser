@@ -44,6 +44,8 @@ public class KonamiCodeLayout extends FrameLayout implements KonamiSequenceListe
 
     private Callback mCallback;
 
+    private boolean done = false;
+
     private AlertDialog buttonDialog;
     private OnClickListener buttonsClickListener = new OnClickListener() {
         @Override
@@ -127,7 +129,8 @@ public class KonamiCodeLayout extends FrameLayout implements KonamiSequenceListe
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
-        processTouches(ev);
+        if(!done)
+            processTouches(ev);
         return super.dispatchTouchEvent(ev);
     }
 
@@ -254,6 +257,7 @@ public class KonamiCodeLayout extends FrameLayout implements KonamiSequenceListe
             mCallback.onFinish();
             this.removeView(this);
             this.mCallback = null;
+            done = true;
         }
     }
 }
