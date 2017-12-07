@@ -13,12 +13,12 @@
     <string name="rgb_info">Guess the RGB values (0–255 for each value)</string>
     <string name="hex_info">Guess the Hex value (0-f)</string>
     <string name="cmyk_info">Guess the CMYK values (0–100 for each one)</string>
-    <string name="preset_info">Fill the Fields with a Color Preset</string>
-    <string name="guess_info">Make your Guess\n\nAfter you make your guess\n\nthe correct values will be shown up by the scores</string>
+    <string name="preset_info">Fill the Fields with a Color Preset to quickly get close to the color so you can tweak it to get the correct color</string>
+    <string name="guess_info">Make your Guess\n\nAfter you make your guess\nthe correct values will be shown up by the scores</string>
     <string name="score_info">Your Score is up here\n\n
         CMYK will give at most 400 points (100 total for each value correct)\n\n
-        Hex will give at most 768 points (256 total for each value correct)\n\n
-        RGB will give at most 768 points (256 total for each value correct)</string>
+        Hex will give at most 765 points (255 total for each value correct)\n\n
+        RGB will give at most 765 points (255 total for each value correct)</string>
     <string name="settings_info">View Settings up here</string>
 
     <string name="scores">Score: %d</string>
@@ -41,7 +41,7 @@
     </string-array>
 
         <string-array name="colorNames">
-            <item></item>
+            <item>Color Presets</item>
             <item>White</item>
             <item>Ivory</item>
             <item>Light Yellow</item>

@@ -14,8 +14,10 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.graphics.ColorUtils;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.AdapterView;
@@ -31,6 +33,7 @@ import com.jaredrummler.materialspinner.MaterialSpinner;
 import com.majeur.cling.Cling;
 import com.majeur.cling.ClingManager;
 import com.majeur.cling.ViewTarget;
+import com.skydoves.powermenu.CustomPowerMenu;
 import com.skydoves.powermenu.MenuAnimation;
 import com.skydoves.powermenu.OnMenuItemClickListener;
 import com.skydoves.powermenu.PowerMenu;
@@ -56,6 +59,7 @@ import programmer.box.utilityhelper.UtilDevice;
 import programmer.box.utilityhelper.UtilImage;
 import programmer.box.utilityhelper.UtilLog;
 import programmer.box.utilityhelper.UtilNotification;
+import studio.carbonylgroup.textfieldboxes.ExtendedEditText;
 
 public class MainActivity extends AppCompatActivity implements LifecycleOwner {
 
@@ -64,7 +68,9 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
     EditText rValue;
     EditText gValue;
     EditText bValue;
-    EditText hexValue;
+    //EditText hexValue;
+    PrefixEditText hexValue;
+    //ExtendedEditText hexValue;
 
     EditText cValue;
     EditText mValue;
@@ -156,18 +162,22 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
 
                 int color;
 
-                if(colors[i].equals("")) {
+                if(colors[i].equals("Color Presets")) {
                     color = Color.TRANSPARENT;
+                    presetColor.getBackground().setTint(Color.WHITE);
+                    ((TextView) adapterView.getChildAt(0)).setTextColor(rValue.getHintTextColors());
                 } else {
                     //color = Color.parseColor(colors[i]);
                     TypedArray ta = getResources().obtainTypedArray(R.array.colors);
                     color = ta.getColor(i-1, 0);
                     ta.recycle();
+                    presetColor.getBackground().setTint(color);
+                    ((TextView) adapterView.getChildAt(0)).setTextColor(getComplimentaryColor(color));
                 }
 
                 UtilLog.e(color + " is the color " + colors[i]);
 
-                //layout.setBackgroundColor(color);
+                //create two drawable files, one is the border, other is the background. Give lin border
 
                 setPresets(color);
             }
@@ -212,6 +222,23 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
         bValue = findViewById(R.id.b_value);
 
         hexValue = findViewById(R.id.hex_value);
+
+        hexValue.setTextChanges(new PrefixEditText.OnTextChanges() {
+            @Override
+            public void afterTextChanged(Editable text) {
+                hexValue.setSuffix(text.toString().length() + "/" + 6);
+            }
+
+            @Override
+            public void onTextChanged(String text) {
+
+            }
+
+            @Override
+            public void beforeTextChanged(String text) {
+
+            }
+        });
 
         cValue = findViewById(R.id.c_value);
         mValue = findViewById(R.id.m_value);
@@ -259,6 +286,10 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
 
                 int addedScore = 0;
 
+                int hexPoints = 0;
+                int rgbPoints = 0;
+                int cmykPoints = 0;
+
                 //int color = currentColor.toArgb();
                 int color = currentColor;
 
@@ -294,7 +325,8 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                         confetti(Color.RED, Color.GREEN, Color.BLUE);
                     }
 
-                    addedScore+=rScore+gScore+bScore;
+                    rgbPoints = rScore+gScore+bScore;
+                    addedScore+=rgbPoints;
 
                 }
 
@@ -320,7 +352,8 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                             confetti(Color.RED, Color.GREEN, Color.BLUE);
                         }
 
-                        addedScore += rScore + gScore + bScore;
+                        hexPoints = rScore + gScore + bScore;
+                        addedScore += hexPoints;
 
                     }
 
@@ -347,10 +380,6 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                 computedY = (computedY - minCMY) / (1 - minCMY);
                 double computedK = minCMY;
 
-                /*computedC = Double.parseDouble(String.format("%.2f", computedC));
-                computedM = Double.parseDouble(String.format("%.2f", computedM));
-                computedY = Double.parseDouble(String.format("%.2f", computedY));
-                computedK = Double.parseDouble(String.format("%.2f", computedK));*/
                 int C = (int) (computedC*100);
                 int M = (int) (computedM*100);
                 int Y = (int) (computedY*100);
@@ -379,7 +408,8 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                             confetti(Color.CYAN, Color.MAGENTA, Color.YELLOW, Color.BLACK);
                         }
 
-                        addedScore += cs + ms + ys + ks;
+                        cmykPoints = (int) (cs + ms + ys + ks);
+                        addedScore += cmykPoints;
 
                     } else {
                         addedScore+=0;
@@ -400,18 +430,97 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                         + ((Integer.toHexString(currentColor.toArgb()).substring(2)).equals(hexGuess) ? checkedMark : xMark) +
                         "\t" + hexGuess;*/
                 String hexInfo = "Hex: #" + Integer.toHexString(currentColor).substring(2) + "\t"
-                        + ((Integer.toHexString(currentColor).substring(2)).equals(hexGuess) ? checkedMark : xMark) +
-                        "\t" + hexGuess;
-                String rInfo = "R: " + RCol + "\t" + ((RCol+"").equals(rGuessed) ? checkedMark : xMark) + "\t" + rGuessed;
-                String gInfo = "G: " + G + "\t" + ((G+"").equals(gGuessed) ? checkedMark : xMark) + "\t" + gGuessed;
-                String bInfo = "B: " + B + "\t" + ((B+"").equals(bGuessed) ? checkedMark : xMark) + "\t" + bGuessed;
-                String cInfo = "C: " + C + "\t" + ((C+"").equals(cGuessed) ? checkedMark : xMark) + "\t" + cGuessed;
-                String mInfo = "M: " + M + "\t" + ((M+"").equals(mGuessed) ? checkedMark : xMark) + "\t" + mGuessed;
-                String yInfo = "Y: " + Y + "\t" + ((Y+"").equals(yGuessed) ? checkedMark : xMark) + "\t" + yGuessed;
-                String kInfo = "K: " + K + "\t" + ((K+"").equals(kGuessed) ? checkedMark : xMark) + "\t" + kGuessed;
+                        + ((Integer.toHexString(currentColor).substring(2)).equals(hexGuess) ? checkedMark : xMark);// + "\t" + hexGuess;
+
+                String rInfo = "R: " + RCol + "\t" + ((RCol+"").equals(rGuessed) ? checkedMark : xMark);// + "\t" + rGuessed;
+                String gInfo = "G: " + G + "\t" + ((G+"").equals(gGuessed) ? checkedMark : xMark);// + "\t" + gGuessed;
+                String bInfo = "B: " + B + "\t" + ((B+"").equals(bGuessed) ? checkedMark : xMark);// + "\t" + bGuessed;
+
+                String rgbInfo = rInfo+"\n"+gInfo+"\n"+bInfo;
+
+                String cInfo = "C: " + C + "\t" + ((C+"").equals(cGuessed) ? checkedMark : xMark);// + "\t" + cGuessed;
+                String mInfo = "M: " + M + "\t" + ((M+"").equals(mGuessed) ? checkedMark : xMark);// + "\t" + mGuessed;
+                String yInfo = "Y: " + Y + "\t" + ((Y+"").equals(yGuessed) ? checkedMark : xMark);// + "\t" + yGuessed;
+                String kInfo = "K: " + K + "\t" + ((K+"").equals(kGuessed) ? checkedMark : xMark);// + "\t" + kGuessed;
+
+                String cmykInfo = cInfo+"\n"+mInfo+"\n"+yInfo+"\n"+kInfo;
+
                 String scoreInfo = "Points Scored: " + addedScore;
 
-                PowerMenu powerMenu = new PowerMenu.Builder(MainActivity.this)
+
+                String hexGuessedInfo = "Hex: #" + (!hexGuess.equals("") ? hexGuess : "ffffff");
+                int hexGuessedColor;
+
+                try {
+                    hexGuessedColor = Color.parseColor("#" + hexGuess);
+                } catch (NumberFormatException e) {
+                    hexGuessedColor = Color.WHITE;
+                }
+
+                String rGuessInfo = (!rGuessed.equals("") ? rGuessed : "0");
+                String gGuessInfo = (!gGuessed.equals("") ? gGuessed : "0");
+                String bGuessInfo = (!bGuessed.equals("") ? bGuessed : "0");
+                String rgbGuessedInfo = "R: " + rGuessInfo + "\nG: " + gGuessInfo + "\nB: " + bGuessInfo;
+                int rgbGuessedColor;
+
+                try {
+                    rgbGuessedColor = Color.rgb(Integer.parseInt(rGuessed), Integer.parseInt(gGuessed), Integer.parseInt(bGuessed));
+                } catch (NumberFormatException e) {
+                    rgbGuessedColor = Color.WHITE;
+                }
+
+
+                String cGuessInfo = (!cGuessed.equals("") ? cGuessed : "0");
+                String mGuessInfo = (!mGuessed.equals("") ? mGuessed : "0");
+                String yGuessInfo = (!yGuessed.equals("") ? yGuessed : "0");
+                String kGuessInfo = (!kGuessed.equals("") ? kGuessed : "0");
+                String cmykGuessedInfo = "C: " + cGuessInfo + "\nM: " + mGuessInfo + "\nY: " + yGuessInfo + "\nK: " + kGuessInfo;
+                int cmykGuessedColor;
+
+                try {
+                    int[] rgbs = getRGBFromCMYK(Integer.parseInt(cGuessed),
+                            Integer.parseInt(mGuessed),
+                            Integer.parseInt(yGuessed),
+                            Integer.parseInt(kGuessed));
+                    cmykGuessedColor = Color.rgb(rgbs[0], rgbs[1], rgbs[2]);
+                } catch (NumberFormatException e) {
+                    cmykGuessedColor = Color.WHITE;
+                }
+
+                String hexPointInfo = hexPoints + " points";
+                String rgbPointInfo = rgbPoints + " points";
+                String cmykPointInfo = cmykPoints + " points";
+
+                CustomPowerMenu customPowerMenu = new CustomPowerMenu.Builder<>(MainActivity.this, new IconMenuAdapter())
+                        .addItem(new IconPowerMenuItem(hexInfo, getComplimentaryColor(currentColor), currentColor))
+                        .addItem(new IconPowerMenuItem(hexGuessedInfo, getComplimentaryColor(hexGuessedColor), hexGuessedColor))
+                        .addItem(new IconPowerMenuItem(hexPointInfo, getComplimentaryColor(hexGuessedColor), hexGuessedColor))
+                        //.addItem(new IconPowerMenuItem(rInfo, getComplimentaryColor(currentColor), currentColor))
+                        //.addItem(new IconPowerMenuItem(gInfo, getComplimentaryColor(currentColor), currentColor))
+                        //.addItem(new IconPowerMenuItem(bInfo, getComplimentaryColor(currentColor), currentColor))
+                        .addItem(new IconPowerMenuItem(rgbInfo, getComplimentaryColor(currentColor), currentColor))
+                        .addItem(new IconPowerMenuItem(rgbGuessedInfo, getComplimentaryColor(rgbGuessedColor), rgbGuessedColor))
+                        .addItem(new IconPowerMenuItem(rgbPointInfo, getComplimentaryColor(rgbGuessedColor),rgbGuessedColor))
+                        //.addItem(new IconPowerMenuItem(cInfo, getComplimentaryColor(currentColor), currentColor))
+                        //.addItem(new IconPowerMenuItem(mInfo, getComplimentaryColor(currentColor), currentColor))
+                        //.addItem(new IconPowerMenuItem(yInfo, getComplimentaryColor(currentColor), currentColor))
+                        //.addItem(new IconPowerMenuItem(kInfo, getComplimentaryColor(currentColor), currentColor))
+                        .addItem(new IconPowerMenuItem(cmykInfo, getComplimentaryColor(currentColor), currentColor))
+                        .addItem(new IconPowerMenuItem(cmykGuessedInfo, getComplimentaryColor(cmykGuessedColor), cmykGuessedColor))
+                        .addItem(new IconPowerMenuItem(cmykPointInfo, getComplimentaryColor(cmykGuessedColor), cmykGuessedColor))
+                        .addItem(new IconPowerMenuItem(scoreInfo, getComplimentaryColor(currentColor), currentColor))
+                        .setAnimation(MenuAnimation.SHOWUP_TOP_LEFT) // Animation start point (TOP | LEFT)
+                        .setMenuRadius(10f)
+                        .setMenuShadow(10f)
+                        .setDividerHeight(3)
+                        .setDivider(getResources().getDrawable(android.R.drawable.dark_header, null))
+                        .setShowBackground(false)
+                        .setLifecycleOwner(MainActivity.this)
+                        .build();
+
+                customPowerMenu.showAsDropDown(score);
+
+                /*PowerMenu powerMenu = new PowerMenu.Builder(MainActivity.this)
                         //.addItemList(list) // list has "Novel", "Poerty", "Art"
                         .addItem(new PowerMenuItem(hexInfo, false))
                         .addItem(new PowerMenuItem(rInfo, false))
@@ -425,6 +534,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                         .setAnimation(MenuAnimation.SHOWUP_TOP_LEFT) // Animation start point (TOP | LEFT)
                         .setMenuRadius(10f)
                         .setMenuShadow(10f)
+                        .setDivider(getResources().getDrawable(android.R.drawable.divider_horizontal_dim_dark))
                         //.setTextColor(Color.BLACK)
                         .setTextColor(getComplimentaryColor(currentColor))
                         .setSelectedTextColor(Color.WHITE)
@@ -436,7 +546,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                         .setLifecycleOwner(MainActivity.this)
                         .build();
 
-                powerMenu.showAsDropDown(score);
+                //powerMenu.showAsDropDown(score);*/
 
                 //--------RESET----------
 
@@ -469,6 +579,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                         //.setTextColor(currentColor.toArgb())
                         .setTextColor(currentColor)
                         .setSelectedTextColor(Color.WHITE)
+                        .setDivider(getResources().getDrawable(android.R.drawable.divider_horizontal_dim_dark, null))
                         //.setMenuColor(Color.WHITE)
                         //.setMenuColor(currentColor.toArgb())
                         .setMenuColor(getComplimentaryColor(currentColor))
@@ -525,6 +636,41 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
         });
 
 
+    }
+
+    public int[] getRGBFromCMYK(int c, int m, int y, int k) {
+
+        /*
+        CMYK to RGB
+        double computedC = 1 - (Double.parseDouble(RCol+"") / RGB_MAX);
+        double computedM = 1 - (Double.parseDouble(G+"") / RGB_MAX);
+        double computedY = 1 - (Double.parseDouble(B+"") / RGB_MAX);
+
+        double minCMY = Math.min(computedC, Math.min(computedM, computedY));
+
+        computedC = (computedC - minCMY) / (1 - minCMY);
+        computedM = (computedM - minCMY) / (1 - minCMY);
+        computedY = (computedY - minCMY) / (1 - minCMY);
+        double computedK = minCMY;
+
+        int C = (int) (computedC*100);
+        int M = (int) (computedM*100);
+        int Y = (int) (computedY*100);
+        int K = (int) (computedK*100);
+         */
+
+        double c1 = ((c/100.0)*(1-(k/100.0)))+(k/100.0);
+        double m1 = ((m/100.0)*(1-(k/100.0)))+(k/100.0);
+        double y1 = ((y/100.0)*(1-(k/100.0)))+(k/100.0);
+
+        double r = ((1-c1)*RGB_MAX);
+        double g = ((1-m1)*RGB_MAX);
+        double b = ((1-y1)*RGB_MAX);
+
+        UtilLog.w(cheat.getText()+"");
+        UtilLog.w("R: " + r + " G: " + g + " B: " + b + " C: " + c + " M: " + m + " Y: " + y + " K: " + k);
+
+        return new int[]{(int) r, (int) g, (int) b};
     }
 
     public static int getComplimentaryColor(int color) {

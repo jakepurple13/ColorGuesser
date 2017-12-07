@@ -8,4 +8,10 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <declare-styleable name="PrefixEditText">
+        <attr name="prefix_text" format="string|reference" />
+        <attr name="suffix_text" format="string|reference" />
+        <attr name="suffixPadding" format="dimension" />
+    </declare-styleable>
+
 </resources>
