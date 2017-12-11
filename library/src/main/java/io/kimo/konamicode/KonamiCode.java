@@ -115,5 +115,105 @@ public class KonamiCode {
             return new KonamiCode(this);
         }
 
+        public KonamiCode install(KonamiCodeLayout.Direction sequence[], KonamiCodeLayout.Button buttons[]) {
+
+            View currentView = rootView.getChildAt(0);
+            rootView.removeView(currentView);
+
+            //match parent params
+            FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+            );
+
+            FrameLayout gestureDelegate = new FrameLayout(context);
+            gestureDelegate.addView(currentView, layoutParams);
+
+            //necessary view that passes all touch events up to the parent viewgroup
+            gestureDelegate.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    return true;
+                }
+            });
+
+            KonamiCodeLayout konamiCodeLayout = new KonamiCodeLayout(context);
+            konamiCodeLayout.addView(gestureDelegate);
+
+            rootView.addView(konamiCodeLayout, layoutParams);
+
+            konamiCodeLayout.setCallback(callback);
+            konamiCodeLayout.setSequence(sequence);
+            konamiCodeLayout.setButtonOrder(buttons);
+
+            return new KonamiCode(this);
+        }
+
+        public KonamiCode install(KonamiCodeLayout.Direction sequence[]) {
+
+            View currentView = rootView.getChildAt(0);
+            rootView.removeView(currentView);
+
+            //match parent params
+            FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+            );
+
+            FrameLayout gestureDelegate = new FrameLayout(context);
+            gestureDelegate.addView(currentView, layoutParams);
+
+            //necessary view that passes all touch events up to the parent viewgroup
+            gestureDelegate.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    return true;
+                }
+            });
+
+            KonamiCodeLayout konamiCodeLayout = new KonamiCodeLayout(context);
+            konamiCodeLayout.addView(gestureDelegate);
+
+            rootView.addView(konamiCodeLayout, layoutParams);
+
+            konamiCodeLayout.setCallback(callback);
+            konamiCodeLayout.setSequence(sequence);
+
+            return new KonamiCode(this);
+        }
+
+        public KonamiCode install(KonamiCodeLayout.Button buttons[]) {
+
+            View currentView = rootView.getChildAt(0);
+            rootView.removeView(currentView);
+
+            //match parent params
+            FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+            );
+
+            FrameLayout gestureDelegate = new FrameLayout(context);
+            gestureDelegate.addView(currentView, layoutParams);
+
+            //necessary view that passes all touch events up to the parent viewgroup
+            gestureDelegate.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    return true;
+                }
+            });
+
+            KonamiCodeLayout konamiCodeLayout = new KonamiCodeLayout(context);
+            konamiCodeLayout.addView(gestureDelegate);
+
+            rootView.addView(konamiCodeLayout, layoutParams);
+
+            konamiCodeLayout.setCallback(callback);
+            konamiCodeLayout.setButtonOrder(buttons);
+
+            return new KonamiCode(this);
+        }
+
     }
 }

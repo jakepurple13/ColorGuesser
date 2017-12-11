@@ -97,6 +97,14 @@ public class KonamiCodeLayout extends FrameLayout implements KonamiSequenceListe
         init();
     }
 
+    public void setSequence(Direction...sequence) {
+        mKonamiCodeDirectionsOrder = Arrays.asList(sequence);
+    }
+
+    public void setButtonOrder(Button...buttons) {
+        mKonamiCodeButtonsOrder = Arrays.asList(buttons);
+    }
+
     private void init() {
         ViewConfiguration viewConfiguration = ViewConfiguration.get(getContext());
         mSwipeThreshold = viewConfiguration.getScaledTouchSlop();
@@ -212,7 +220,9 @@ public class KonamiCodeLayout extends FrameLayout implements KonamiSequenceListe
     }
 
     private void showDialog() {
-        buttonDialog.show();
+        if(!mKonamiCodeButtonsOrder.get(0).equals(Button.NONE)) {
+            buttonDialog.show();
+        }
     }
 
     private void registerSwipe() {
@@ -225,7 +235,12 @@ public class KonamiCodeLayout extends FrameLayout implements KonamiSequenceListe
                 resetSwipeSequence();
             } else {
                 if(onSwipeSequenceAchieved()) {
-                    showDialog();
+
+                    if(mKonamiCodeButtonsOrder.get(0).equals(Button.NONE)) {
+                        triggerFinalCallback();
+                    } else {
+                        showDialog();
+                    }
                     resetSwipeSequence();
                 }
             }

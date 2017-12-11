@@ -18,12 +18,15 @@ import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -33,6 +36,7 @@ import com.jaredrummler.materialspinner.MaterialSpinner;
 import com.majeur.cling.Cling;
 import com.majeur.cling.ClingManager;
 import com.majeur.cling.ViewTarget;
+import com.rtugeek.android.colorseekbar.ColorSeekBar;
 import com.skydoves.powermenu.CustomPowerMenu;
 import com.skydoves.powermenu.MenuAnimation;
 import com.skydoves.powermenu.OnMenuItemClickListener;
@@ -68,26 +72,28 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
     EditText rValue;
     EditText gValue;
     EditText bValue;
-    //EditText hexValue;
     PrefixEditText hexValue;
-    //ExtendedEditText hexValue;
 
     EditText cValue;
     EditText mValue;
     EditText yValue;
     EditText kValue;
 
+    ImageButton cmykClear;
+    ImageButton hexClear;
+    ImageButton rgbClear;
+
     TextView score;
 
     RelativeLayout layout;
     RelativeLayout cmyk;
     RelativeLayout rgb;
+    RelativeLayout hex;
 
     FloatingActionButton fab;
 
     Random gen = new Random();
 
-    //Color currentColor;
     int currentColor;
 
     int currentScore = 0;
@@ -101,10 +107,13 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
 
     TextView cheat;
 
-    //MaterialSpinner presetColor;
     Spinner presetColor;
 
     CircleImageView colorToGuess;
+
+    ColorSeekBar colorSeekBar;
+
+    boolean superCheatMode = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,6 +123,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
 
         getSupportActionBar().hide();
 
+        //Cheat code setup--------------
         new KonamiCode.Installer(this)
                 .on(this)
                 .callback(new KonamiCodeLayout.Callback() {
@@ -122,27 +132,113 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                         //whatever
                         cheat.setVisibility(View.VISIBLE);
                         UtilNotification.showToast(MainActivity.this, "Super Color Mode Activated!", UtilNotification.Lengths.Short);
+
+                        SpotlightSequence sequence = SpotlightSequence.getInstance(MainActivity.this, config);
+                        sequence.addSpotlight(cheat, "Cheat Mode", "You found my easter egg!\n\nGood job!\n\nThis allows you to see the answer! But they might not be exactly what it shows. Good luck!", "cheat", false);
+                        sequence.startSequence();
                     }
                 })
                 .install();
 
+        KonamiCodeLayout.Direction direction[] = new KonamiCodeLayout.Direction[]{KonamiCodeLayout.Direction.UP,
+                KonamiCodeLayout.Direction.DOWN, KonamiCodeLayout.Direction.LEFT, KonamiCodeLayout.Direction.RIGHT};
+
+        KonamiCodeLayout.Button buttons[] = new KonamiCodeLayout.Button[]{KonamiCodeLayout.Button.NONE};
+
+        new KonamiCode.Installer(this)
+                .on(this)
+                .callback(new KonamiCodeLayout.Callback() {
+                    @Override
+                    public void onFinish() {
+                        colorSeekBar.setVisibility(View.VISIBLE);
+
+                        UtilNotification.showToast(MainActivity.this, "Custom Mode Activated!", UtilNotification.Lengths.Short);
+
+                        SpotlightSequence sequence = SpotlightSequence.getInstance(MainActivity.this, config);
+                        sequence.addSpotlight(colorSeekBar, "Custom Mode", "You found my easter egg!\n\nGood job!\n\nThis mode allows you to change the color to your choosing!", "colorseekbar4", false);
+                        sequence.startSequence();
+
+                        new KonamiCode.Installer(MainActivity.this)
+                                .on(MainActivity.this)
+                                .callback(new KonamiCodeLayout.Callback() {
+                                    @Override
+                                    public void onFinish() {
+                                        UtilNotification.showToast(MainActivity.this, "Super Custom Mode Activated!", UtilNotification.Lengths.Short);
+                                        superCheatMode = true;
+                                    }
+                                })
+                                .install(new KonamiCodeLayout.Direction[]{KonamiCodeLayout.Direction.RIGHT,
+                                        KonamiCodeLayout.Direction.LEFT, KonamiCodeLayout.Direction.DOWN,
+                                        KonamiCodeLayout.Direction.UP},
+                                        new KonamiCodeLayout.Button[]{KonamiCodeLayout.Button.NONE});
+
+                    }
+                })
+                .install(direction, buttons);
+
+        cheat = findViewById(R.id.cheatMode);
+
+        //this is all to set up the guessing color
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         int height = displayMetrics.heightPixels;
         int width = displayMetrics.widthPixels;
 
         colorToGuess = findViewById(R.id.profile_image);
-
         colorToGuess.getLayoutParams().width=(width/2);
-
         colorToGuess.requestLayout();
 
-        guess = findViewById(R.id.guess);
+        //this is the color slider cheat
+        colorSeekBar = findViewById(R.id.colorSlider);
 
-        //guess.setBackgroundResource(R.drawable.rounded_corners);
+        colorSeekBar.setOnColorChangeListener(new ColorSeekBar.OnColorChangeListener() {
+            @Override
+            public void onColorChangeListener(int colorBarPosition, int alphaBarPosition, int color) {
+                reset(color);
+                if(superCheatMode) {
+                    setPresets(color);
+                }
 
-        cheat = findViewById(R.id.cheatMode);
+            }
+        });
 
+        colorSeekBar.setBackgroundResource(R.drawable.rounded_corners);
+        colorSeekBar.setPadding(5,5,5,5);
+        colorSeekBar.setBarHeight(5);
+        colorSeekBar.setBarMargin(5);
+
+        //these are to quick clear fields
+        rgbClear = findViewById(R.id.clear_rgb);
+        hexClear = findViewById(R.id.clear_hex);
+        cmykClear = findViewById(R.id.clear_cmyk);
+
+        rgbClear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                rValue.setText("");
+                gValue.setText("");
+                bValue.setText("");
+            }
+        });
+
+        hexClear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                hexValue.setText("");
+            }
+        });
+
+        cmykClear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                cValue.setText("");
+                mValue.setText("");
+                yValue.setText("");
+                kValue.setText("");
+            }
+        });
+
+        //this is color presets
         presetColor = findViewById(R.id.preset_color);
 
         final String[] colors = getResources().getStringArray(R.array.colorNames);
@@ -165,7 +261,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                 if(colors[i].equals("Color Presets")) {
                     color = Color.TRANSPARENT;
                     presetColor.getBackground().setTint(Color.WHITE);
-                    ((TextView) adapterView.getChildAt(0)).setTextColor(rValue.getHintTextColors());
+                    ((TextView) adapterView.getChildAt(0)).setTextColor(Color.BLACK);
                 } else {
                     //color = Color.parseColor(colors[i]);
                     TypedArray ta = getResources().obtainTypedArray(R.array.colors);
@@ -188,45 +284,102 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
             }
         });
 
-        //presetColor.setBackgroundResource(R.drawable.rounded_corners);
-        //presetColor.setBackgroundColor(guess.getSolidColor());
-
-        /*presetColor.setItems(getResources().getStringArray(R.array.colors));
-
-        presetColor.setOnItemSelectedListener(new MaterialSpinner.OnItemSelectedListener<String>() {
-
-            @Override public void onItemSelected(MaterialSpinner view, int position, long id, String item) {
-                UtilLog.e(item);
-
-                int color;
-
-                if(item.equals("")) {
-                    color = Color.TRANSPARENT;
-                } else if(item.equals("Dark Gray")) {
-                    color = Color.DKGRAY;
-                } else if(item.equals("Light Gray")) {
-                    color = Color.LTGRAY;
-                } else {
-                    color = Color.parseColor(item);
-                }
-
-                UtilLog.e(color + " is the color " + item);
-
-                setPresets(color);
+        //this is a text watcher to dynamically change rgb field color
+        TextWatcher rgbWatch = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
             }
-        });*/
 
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+                try {
+
+                    String r = rValue.getText().toString();
+                    int r1;
+
+                    if(r.equals("")) {
+                        r1 = 0;
+                    } else {
+                        r1 = Integer.parseInt(r);
+                    }
+
+                    String g = gValue.getText().toString();
+                    int g1;
+
+                    if(g.equals("")) {
+                        g1 = 0;
+                    } else {
+                        g1 = Integer.parseInt(g);
+                    }
+
+                    String b = bValue.getText().toString();
+                    int b1;
+
+                    if(b.equals("")) {
+                        b1 = 0;
+                    } else {
+                        b1 = Integer.parseInt(b);
+                    }
+                    
+                    int color = Color.rgb(r1,g1,b1);
+
+                    if(b.equals("") && g.equals("") && r.equals("")) {
+                        color = Color.WHITE;
+                    }
+
+                    int comColor = getComplimentaryColor(color);
+                    int hintComColor = (comColor & 0x00FFFFFF) | 0x50000000;
+                    rgb.getBackground().setTint(color);
+                    rValue.setTextColor(comColor);
+                    gValue.setTextColor(comColor);
+                    bValue.setTextColor(comColor);
+                    rValue.setHintTextColor(hintComColor);
+                    gValue.setHintTextColor(hintComColor);
+                    bValue.setHintTextColor(hintComColor);
+                } catch(StringIndexOutOfBoundsException|IllegalArgumentException e) {
+                    rgb.getBackground().setTint(Color.WHITE);
+                    rValue.setTextColor(Color.BLACK);
+                    gValue.setTextColor(Color.BLACK);
+                    bValue.setTextColor(Color.BLACK);
+                }
+            }
+        };
+        
         rValue = findViewById(R.id.r_value);
         gValue = findViewById(R.id.g_value);
         bValue = findViewById(R.id.b_value);
 
+        rValue.addTextChangedListener(rgbWatch);
+        gValue.addTextChangedListener(rgbWatch);
+        bValue.addTextChangedListener(rgbWatch);
+
+        //hex value field
         hexValue = findViewById(R.id.hex_value);
 
         hexValue.setTextChanges(new PrefixEditText.OnTextChanges() {
             @Override
             public void afterTextChanged(Editable text) {
+
                 hexValue.setSuffix(text.toString().length() + "/" + 6);
+
+                try {
+                    int color = Color.parseColor("#" + text.toString());
+                    //hexValue.getBackground().setTint(color);
+                    hex.getBackground().setTint(color);
+                    hexValue.setTextColor(getComplimentaryColor(color));
+                } catch(StringIndexOutOfBoundsException|IllegalArgumentException e) {
+                    //hexValue.getBackground().setTint(Color.WHITE);
+                    hex.getBackground().setTint(Color.WHITE);
+                    hexValue.setTextColor(Color.BLACK);
+                }
+
             }
 
             @Override
@@ -240,18 +393,99 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
             }
         });
 
+        //this is a text watcher to dynamically change cmyk field color
+        TextWatcher cmykWatch = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+                try {
+
+                    String c = cValue.getText().toString();
+                    int c1;
+
+                    if(c.equals("")) {
+                        c1 = 0;
+                    } else {
+                        c1 = Integer.parseInt(c);
+                    }
+
+                    String m = mValue.getText().toString();
+                    int m1;
+
+                    if(m.equals("")) {
+                        m1 = 0;
+                    } else {
+                        m1 = Integer.parseInt(m);
+                    }
+
+                    String y = yValue.getText().toString();
+                    int y1;
+
+                    if(y.equals("")) {
+                        y1 = 0;
+                    } else {
+                        y1 = Integer.parseInt(y);
+                    }
+
+                    String k = kValue.getText().toString();
+                    int k1;
+
+                    if(k.equals("")) {
+                        k1 = 0;
+                    } else {
+                        k1 = Integer.parseInt(k);
+                    }
+
+                    int[] cmykVal = getRGBFromCMYK(c1,m1,y1,k1);
+                    int color = Color.rgb(cmykVal[0], cmykVal[1], cmykVal[2]);
+
+                    int comColor = getComplimentaryColor(color);
+
+                    cmyk.getBackground().setTint(color);
+                    cValue.setTextColor(comColor);
+                    mValue.setTextColor(comColor);
+                    yValue.setTextColor(comColor);
+                    kValue.setTextColor(comColor);
+                } catch(StringIndexOutOfBoundsException|IllegalArgumentException e) {
+                    cmyk.getBackground().setTint(Color.WHITE);
+                    cValue.setTextColor(Color.BLACK);
+                    mValue.setTextColor(Color.BLACK);
+                    yValue.setTextColor(Color.BLACK);
+                    kValue.setTextColor(Color.BLACK);
+                    //e.printStackTrace();
+                }
+            }
+        };
+
         cValue = findViewById(R.id.c_value);
         mValue = findViewById(R.id.m_value);
         yValue = findViewById(R.id.y_value);
         kValue = findViewById(R.id.k_value);
 
+        cValue.addTextChangedListener(cmykWatch);
+        mValue.addTextChangedListener(cmykWatch);
+        yValue.addTextChangedListener(cmykWatch);
+        kValue.addTextChangedListener(cmykWatch);
+
+        //the background for the fields
         cmyk = findViewById(R.id.cmyk_view);
         rgb = findViewById(R.id.rgb_view);
+        hex = findViewById(R.id.hex_view);
 
-        fab = findViewById(R.id.settings);
-
+        //confetti for if the user guesses 3 fields correct
         konfettiView = findViewById(R.id.viewKonfetti);
 
+        //current score set up
         SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
         currentScore = sharedPref.getInt("score", 0);
 
@@ -259,8 +493,10 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
         score.setTextSize(20);
         score.setText("Score: " + currentScore);
 
+        //full background
         layout = findViewById(R.id.background);
 
+        //default spotlight config
         config = new SpotlightConfig();
         config.setIntroAnimationDuration(400);
         config.setRevealAnimationEnabled(true);
@@ -276,23 +512,21 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
         config.setDismissOnTouch(true);
         config.setDismissOnBackpress(true);
 
-        reset();
-
-        firstTime();
+        //the guess button!
+        guess = findViewById(R.id.guess);
 
         guess.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                //the score that will be added
                 int addedScore = 0;
-
+                //so the user can see how many points they earned in each category
                 int hexPoints = 0;
                 int rgbPoints = 0;
                 int cmykPoints = 0;
 
-                //int color = currentColor.toArgb();
                 int color = currentColor;
-
+                //the rgb of the current color
                 int A = (color >> 24) & 0xff; // or color >>> 24
                 int RCol = (color >> 16) & 0xff;
                 int G = (color >>  8) & 0xff;
@@ -303,7 +537,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                 String rGuessed = rValue.getText().toString();
                 String gGuessed = gValue.getText().toString();
                 String bGuessed = bValue.getText().toString();
-
+                //if any of the fields are empty, no points...no matter what
                 if(!rGuessed.equals("") && !gGuessed.equals("") && !bGuessed.equals("")) {
 
                     int r = Integer.parseInt(rGuessed);
@@ -321,11 +555,14 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                     UtilLog.i(Color.green(color) + " is the green");
                     UtilLog.i(Color.blue(color) + " is the blue");
 
+                    //if all three are correct, CONFETTI!!!
                     if(rScore==RGB_MAX && gScore==RGB_MAX && bScore==RGB_MAX) {
                         confetti(Color.RED, Color.GREEN, Color.BLUE);
                     }
 
                     rgbPoints = rScore+gScore+bScore;
+                    if(superCheatMode)
+                        rgbPoints/=4;
                     addedScore+=rgbPoints;
 
                 }
@@ -335,11 +572,11 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                 String hexGuess = hexValue.getText().toString();
 
                 try {
-
+                    //if the hex field is empty, ZERO points!
                     if (!hexGuess.equals("")) {
-
+                        //parse the color
                         int c = Color.parseColor("#" + hexGuess);
-
+                        //get the rgb values for it
                         int r = (c >> 16) & 0xff;
                         int g = (c >> 8) & 0xff;
                         int b = (c) & 0xff;
@@ -347,12 +584,14 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                         int rScore = getScore(RCol, r);
                         int gScore = getScore(G, g);
                         int bScore = getScore(B, b);
-
+                        //if its perfect, CONFETTI!
                         if(rScore==RGB_MAX && gScore==RGB_MAX && bScore==RGB_MAX) {
                             confetti(Color.RED, Color.GREEN, Color.BLUE);
                         }
 
                         hexPoints = rScore + gScore + bScore;
+                        if(superCheatMode)
+                            hexPoints/=4;
                         addedScore += hexPoints;
 
                     }
@@ -368,7 +607,8 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                 String mGuessed = mValue.getText().toString();
                 String yGuessed = yValue.getText().toString();
                 String kGuessed = kValue.getText().toString();
-
+                //this is all to get the CMYK values. Taken from online.
+                //http://www.javascripter.net/faq/hex2cmyk.htm
                 double computedC = 1 - (Double.parseDouble(RCol+"") / RGB_MAX);
                 double computedM = 1 - (Double.parseDouble(G+"") / RGB_MAX);
                 double computedY = 1 - (Double.parseDouble(B+"") / RGB_MAX);
@@ -379,36 +619,33 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                 computedM = (computedM - minCMY) / (1 - minCMY);
                 computedY = (computedY - minCMY) / (1 - minCMY);
                 double computedK = minCMY;
-
+                //the CMYK values
                 int C = (int) (computedC*100);
                 int M = (int) (computedM*100);
                 int Y = (int) (computedY*100);
                 int K = (int) (computedK*100);
-
+                //if any of the fields are empty, no points
                 if(!cGuessed.equals("") && !mGuessed.equals("") && !yGuessed.equals("") && !kGuessed.equals("")) {
 
                     double c = Double.parseDouble(cGuessed);
                     double m = Double.parseDouble(mGuessed);
                     double y = Double.parseDouble(yGuessed);
                     double k = Double.parseDouble(kGuessed);
-
+                    //making sure everything is within the right values
                     if((c<=100 || c>=0) && (m<=100 || m>=0) && (y<=100 || y>=0) && (k<=100 || k>=0)) {
-
-                        //c = Double.parseDouble(String.format("%.2f", c));
-                        //m = Double.parseDouble(String.format("%.2f", c));
-                        //y = Double.parseDouble(String.format("%.2f", c));
-                        //k = Double.parseDouble(String.format("%.2f", c));
 
                         double cs = getCMYKScore(C, c);
                         double ms = getCMYKScore(M, m);
                         double ys = getCMYKScore(Y, y);
                         double ks = getCMYKScore(K, k);
-
+                        //if everything is perfect, CONFETTI!
                         if(cs==CMYK_MAX && ms==CMYK_MAX && ys==CMYK_MAX && ks==CMYK_MAX) {
                             confetti(Color.CYAN, Color.MAGENTA, Color.YELLOW, Color.BLACK);
                         }
 
                         cmykPoints = (int) (cs + ms + ys + ks);
+                        if(superCheatMode)
+                            cmykPoints/=4;
                         addedScore += cmykPoints;
 
                     } else {
@@ -423,31 +660,29 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
 
                 score.setText(getString(R.string.scores, currentScore));
 
+                //the correct answer info
                 String checkedMark = "\u2713";
                 String xMark = "X";
-
-                /*String hexInfo = "Hex: #" + Integer.toHexString(currentColor.toArgb()).substring(2) + "\t"
-                        + ((Integer.toHexString(currentColor.toArgb()).substring(2)).equals(hexGuess) ? checkedMark : xMark) +
-                        "\t" + hexGuess;*/
+                //the results for hex value
                 String hexInfo = "Hex: #" + Integer.toHexString(currentColor).substring(2) + "\t"
                         + ((Integer.toHexString(currentColor).substring(2)).equals(hexGuess) ? checkedMark : xMark);// + "\t" + hexGuess;
-
+                //the results for rgb
                 String rInfo = "R: " + RCol + "\t" + ((RCol+"").equals(rGuessed) ? checkedMark : xMark);// + "\t" + rGuessed;
                 String gInfo = "G: " + G + "\t" + ((G+"").equals(gGuessed) ? checkedMark : xMark);// + "\t" + gGuessed;
                 String bInfo = "B: " + B + "\t" + ((B+"").equals(bGuessed) ? checkedMark : xMark);// + "\t" + bGuessed;
-
+                //some housekeeping
                 String rgbInfo = rInfo+"\n"+gInfo+"\n"+bInfo;
-
+                //the results for cmyk
                 String cInfo = "C: " + C + "\t" + ((C+"").equals(cGuessed) ? checkedMark : xMark);// + "\t" + cGuessed;
                 String mInfo = "M: " + M + "\t" + ((M+"").equals(mGuessed) ? checkedMark : xMark);// + "\t" + mGuessed;
                 String yInfo = "Y: " + Y + "\t" + ((Y+"").equals(yGuessed) ? checkedMark : xMark);// + "\t" + yGuessed;
                 String kInfo = "K: " + K + "\t" + ((K+"").equals(kGuessed) ? checkedMark : xMark);// + "\t" + kGuessed;
-
+                //more housekeeping
                 String cmykInfo = cInfo+"\n"+mInfo+"\n"+yInfo+"\n"+kInfo;
-
+                //points scored
                 String scoreInfo = "Points Scored: " + addedScore;
-
-
+                //user guessed info
+                //user hex guess
                 String hexGuessedInfo = "Hex: #" + (!hexGuess.equals("") ? hexGuess : "ffffff");
                 int hexGuessedColor;
 
@@ -456,7 +691,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                 } catch (NumberFormatException e) {
                     hexGuessedColor = Color.WHITE;
                 }
-
+                //user rgb guess
                 String rGuessInfo = (!rGuessed.equals("") ? rGuessed : "0");
                 String gGuessInfo = (!gGuessed.equals("") ? gGuessed : "0");
                 String bGuessInfo = (!bGuessed.equals("") ? bGuessed : "0");
@@ -468,8 +703,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                 } catch (NumberFormatException e) {
                     rgbGuessedColor = Color.WHITE;
                 }
-
-
+                //user cmyk guess
                 String cGuessInfo = (!cGuessed.equals("") ? cGuessed : "0");
                 String mGuessInfo = (!mGuessed.equals("") ? mGuessed : "0");
                 String yGuessInfo = (!yGuessed.equals("") ? yGuessed : "0");
@@ -486,11 +720,12 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                 } catch (NumberFormatException e) {
                     cmykGuessedColor = Color.WHITE;
                 }
-
+                //point info
                 String hexPointInfo = hexPoints + " points";
                 String rgbPointInfo = rgbPoints + " points";
                 String cmykPointInfo = cmykPoints + " points";
 
+                //user results menu
                 CustomPowerMenu customPowerMenu = new CustomPowerMenu.Builder<>(MainActivity.this, new IconMenuAdapter())
                         .addItem(new IconPowerMenuItem(hexInfo, getComplimentaryColor(currentColor), currentColor))
                         .addItem(new IconPowerMenuItem(hexGuessedInfo, getComplimentaryColor(hexGuessedColor), hexGuessedColor))
@@ -520,34 +755,6 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
 
                 customPowerMenu.showAsDropDown(score);
 
-                /*PowerMenu powerMenu = new PowerMenu.Builder(MainActivity.this)
-                        //.addItemList(list) // list has "Novel", "Poerty", "Art"
-                        .addItem(new PowerMenuItem(hexInfo, false))
-                        .addItem(new PowerMenuItem(rInfo, false))
-                        .addItem(new PowerMenuItem(gInfo, false))
-                        .addItem(new PowerMenuItem(bInfo, false))
-                        .addItem(new PowerMenuItem(cInfo, false))
-                        .addItem(new PowerMenuItem(mInfo, false))
-                        .addItem(new PowerMenuItem(yInfo, false))
-                        .addItem(new PowerMenuItem(kInfo, false))
-                        .addItem(new PowerMenuItem(scoreInfo, false))
-                        .setAnimation(MenuAnimation.SHOWUP_TOP_LEFT) // Animation start point (TOP | LEFT)
-                        .setMenuRadius(10f)
-                        .setMenuShadow(10f)
-                        .setDivider(getResources().getDrawable(android.R.drawable.divider_horizontal_dim_dark))
-                        //.setTextColor(Color.BLACK)
-                        .setTextColor(getComplimentaryColor(currentColor))
-                        .setSelectedTextColor(Color.WHITE)
-                        //.setMenuColor(Color.WHITE)
-                        //.setMenuColor(currentColor.toArgb())
-                        .setMenuColor(currentColor)
-                        .setSelectedMenuColor(Color.WHITE)
-                        .setShowBackground(false)
-                        .setLifecycleOwner(MainActivity.this)
-                        .build();
-
-                //powerMenu.showAsDropDown(score);*/
-
                 //--------RESET----------
 
                 //String rgb = currentColor.red() + "|" + currentColor.green() + "|" + currentColor.blue();
@@ -557,11 +764,14 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                 UtilLog.e("A:" + A + "|" + "RCol:" + RCol + "|" + "G:" + G + "|" + "B:" + B +
                         " | Hex: " + hex +
                         " | C: " + computedC + " | M: " + computedM + " | Y: " + computedY + " | K: " + computedK);*/
-
-                reset();
+                //reset the field
+                reset(getRandomColor());
 
             }
         });
+
+        //settings button
+        fab = findViewById(R.id.settings);
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -635,9 +845,21 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
             }
         });
 
+        //let's begin with a random color
+        reset(getRandomColor());
+        //first time tutorial
+        firstTime();
 
     }
 
+    /**
+     * getRGBFromCMYK - gets rgb values from the cmyk
+     * @param c - c
+     * @param m - m
+     * @param y - y
+     * @param k - k
+     * @return the rgb values in an array
+     */
     public int[] getRGBFromCMYK(int c, int m, int y, int k) {
 
         /*
@@ -673,15 +895,23 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
         return new int[]{(int) r, (int) g, (int) b};
     }
 
+    /**
+     * getComplimentaryColor - gets the complimentary color
+     * @param color - the color you want to get the complimentary color from
+     * @return - the complimentary color
+     */
     public static int getComplimentaryColor(int color) {
-
-        //int color1 = color.toArgb();
-
         return Color.rgb(RGB_MAX-Color.red(color),
                 RGB_MAX-Color.green(color),
                 RGB_MAX-Color.blue(color));
     }
 
+    /**
+     * getScore - gets the score
+     * @param actual - the actual value
+     * @param guessed - the guessed value
+     * @return - points
+     */
     public int getScore(int actual, int guessed) {
 
         /*int dif;
@@ -709,16 +939,26 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
         } else {
             return 0;
         }*/
-
+        //RGB_MAX - difference
         return RGB_MAX-(actual>=guessed ? (actual-guessed) : (guessed-actual));
     }
 
+    /**
+     * getCMYKScore - gets the score
+     * @param actual - the actual value
+     * @param guessed - the guessed value
+     * @return - points
+     */
     public double getCMYKScore(double actual, double guessed) {
-
+        //CMYK_MAX - difference
         return CMYK_MAX-(actual>=guessed ? (actual-guessed) : (guessed-actual));
 
     }
 
+    /**
+     * changes all of the text colors
+     * @param color - the color to use
+     */
     public void setTextColors(int color) {
         score.setTextColor(color);
         rValue.setTextColor(color);
@@ -732,7 +972,6 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
         //presetColor.setTextColor(getComplimentaryColor(Color.valueOf(color)));
         //presetColor.setTextColor(getComplimentaryColor(color));
 
-
         score.setHintTextColor(color);
         rValue.setHintTextColor(color);
         gValue.setHintTextColor(color);
@@ -744,7 +983,11 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
         kValue.setHintTextColor(color);
     }
 
-    public void reset() {
+    /**
+     * reset - resets everything with a new color
+     * @param newColor - the color to use
+     */
+    public void reset(int newColor) {
         rValue.setText("");
         gValue.setText("");
         bValue.setText("");
@@ -756,35 +999,23 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
         yValue.setText("");
         kValue.setText("");
 
-        currentColor = getRandomColor();
-        //layout.setBackgroundColor(currentColor.toArgb());
-        //colorToGuess.setCircleBackgroundColor(currentColor.toArgb());
+        currentColor = newColor;
 
         Drawable d = colorToGuess.getDrawable();
-        //d.setColorFilter(new PorterDuffColorFilter(currentColor.toArgb(), PorterDuff.Mode.MULTIPLY));
         d.setColorFilter(new PorterDuffColorFilter(currentColor, PorterDuff.Mode.MULTIPLY));
         colorToGuess.setImageDrawable(d);
 
-        //setTextColors(getComplimentaryColor(currentColor));
-
         fab.setBackgroundTintList(new ColorStateList(new int[][]{new int[]{0}}, new int[]{getComplimentaryColor(currentColor)}));
 
-        //int color1 = currentColor.toArgb();
-        int color1 = currentColor;
-
-        int A1 = (color1 >> 24) & 0xff; // or color >>> 24
-        int R1 = (color1 >> 16) & 0xff;
-        int G1 = (color1 >>  8) & 0xff;
-        int B1 = (color1      ) & 0xff;
-
-        /*String hex1 = "#" + Integer.toHexString(currentColor.toArgb()).substring(2);
-
-        double computedC = 1 - (currentColor.red() / RGB_MAX);
-        double computedM = 1 - (currentColor.green() / RGB_MAX);
-        double computedY = 1 - (currentColor.blue() / RGB_MAX);*/
-
+        int color = currentColor;
+        //rgb
+        int A1 = (color >> 24) & 0xff; // or color >>> 24
+        int R1 = (color >> 16) & 0xff;
+        int G1 = (color >>  8) & 0xff;
+        int B1 = (color      ) & 0xff;
+        //hex
         String hex1 = "#" + Integer.toHexString(currentColor).substring(2);
-
+        //cmyk
         double computedC = 1 - (Double.parseDouble(R1+"") / RGB_MAX);
         double computedM = 1 - (Double.parseDouble(G1+"") / RGB_MAX);
         double computedY = 1 - (Double.parseDouble(B1+"") / RGB_MAX);
@@ -800,35 +1031,39 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
         computedM = Double.parseDouble(String.format("%.3f", computedM));
         computedY = Double.parseDouble(String.format("%.3f", computedY));
         computedK = Double.parseDouble(String.format("%.3f", computedK));
-
+        //what the values are
         String msg = "A:" + A1 + "|" + "R:" + R1 + "|" + "G:" + G1 + "|" + "B:" + B1 +
                 "| Hex: " + hex1 +
                 " | C: " + computedC + " | M: " + computedM + " | Y: " + computedY + " | K: " + computedK;
 
         UtilLog.e(msg);
 
-        UtilDevice.changeStatusBarColor(this, color1);
-
+        UtilDevice.changeStatusBarColor(this, color);
+        //for cheat mode
         cheat.setText(msg);
-
-        //config.setLineAndArcColor(getComplimentaryColor(currentColor));
-        //config.setHeadingTvColor(getComplimentaryColor(currentColor));
-
-        //config.setLineAndArcColor(currentColor.toArgb());
-        //config.setHeadingTvColor(currentColor.toArgb());
-
+        //change tutorial colors
         config.setLineAndArcColor(currentColor);
         config.setHeadingTvColor(currentColor);
 
-        //presetColor.setBackgroundColor(currentColor.toArgb());
-        //presetColor.setBackgroundColor(UtilImage.lighter(getComplimentaryColor(currentColor), 0.5f));
-        //presetColor.setSelectedIndex(0);
         presetColor.setSelection(0);
+        //hide the keyboard if its showing
+        try {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+            }
+        } catch (NullPointerException e) {
+
+        }
 
     }
 
+    /**
+     * setPresets - sets all fields to a color
+     * @param color - the color
+     */
     public void setPresets(int color) {
-
+        //if its transparent, reset the fields
         if(color==Color.TRANSPARENT) {
 
             rValue.setText("");
@@ -881,6 +1116,10 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
 
     }
 
+    /**
+     * getRandomColor - gets a random color
+     * @return - a random color
+     */
     public int getRandomColor() {
         int a = 255;//gen.nextInt(RGB_MAX+1);
         int r = gen.nextInt(RGB_MAX+1);
@@ -890,6 +1129,10 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
         return Color.argb(a,r,g,b);
     }
 
+    /**
+     * confetti - shoots confetti
+     * @param colors - an array of colors to use
+     */
     public void confetti(int... colors) {
         konfettiView.build()
                 .addColors(colors)
@@ -924,6 +1167,9 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
         super.onStop();
     }
 
+    /**
+     * showTutorial - shows a tutorial
+     */
     public void showTutorial() {
         SpotlightSequence sequence = SpotlightSequence.getInstance(MainActivity.this, config);
         sequence.addSpotlight(colorToGuess, getString(R.string.color_guess), getString(R.string.color_guess_info), "colortoguess", false);
@@ -937,6 +1183,9 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
         sequence.startSequence();
     }
 
+    /**
+     * firstTime - shows a first time dialog
+     */
     public void firstTime() {
         SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
         final SharedPreferences.Editor editor=sharedPref.edit();
@@ -983,13 +1232,6 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
         }
 
 
-    }
-
-    public void getRGBOfColor(int color) {
-        int A = (color >> 24) & 0xff; // or color >>> 24
-        int RCol = (color >> 16) & 0xff;
-        int G = (color >>  8) & 0xff;
-        int B = (color      ) & 0xff;
     }
 
 }

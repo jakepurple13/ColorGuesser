@@ -12,13 +12,15 @@
     <nl.dionsegijn.konfetti.KonfettiView
         android:id="@+id/viewKonfetti"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true" />
 
     <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/profile_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@id/cheatMode"
+        android:layout_above="@id/colorSlider"
         android:layout_below="@+id/settings_lin"
         android:layout_centerHorizontal="true"
         android:src="@color/white"
@@ -45,13 +47,22 @@
         android:text="Score: 0"
         android:textColor="#000000" />
 
+    <LinearLayout
+        android:id="@+id/rgb_lin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:background="@drawable/border_corners"
+        android:layout_alignTop="@+id/guess"
+        android:padding="3dp">
+
     <RelativeLayout
         android:id="@+id/rgb_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:paddingStart="5dp"
-        android:background="@drawable/rounded_corners"
+        android:background="@drawable/round_couners"
         android:layout_alignTop="@+id/guess">
 
         <EditText
@@ -92,86 +103,142 @@
             android:inputType="number"
             android:maxLength="3" />
 
+        <ImageButton
+            android:id="@+id/clear_rgb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@+id/b_value"
+            android:layout_centerVertical="true"
+            android:background="@android:color/transparent"
+            app:srcCompat="@android:drawable/ic_notification_clear_all" />
+
     </RelativeLayout>
 
-    <programmer.box.colorguesser.PrefixEditText
-        android:id="@+id/hex_value"
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/hex_lin"
         android:layout_width="wrap_content"
         android:layout_height="65dp"
         android:layout_above="@+id/guess"
-        android:layout_alignParentStart="true"
-        android:background="@drawable/rounded_corners"
-        android:digits="0123456789abcdef"
-        android:ems="10"
-        android:hint="Hex"
-        android:imeOptions="actionNext"
-        android:inputType="textVisiblePassword"
-        android:maxLength="6"
-        app:prefix_text="#"
-        android:padding="5dp" />
+        android:padding="3dp"
+        android:background="@drawable/border_corners"
+        android:layout_alignParentStart="true">
 
-    <RelativeLayout
-        android:id="@+id/cmyk_view"
-        android:background="@drawable/rounded_corners"
+        <RelativeLayout
+            android:id="@+id/hex_view"
+            android:layout_width="match_parent"
+            android:background="@drawable/round_couners"
+            android:layout_height="match_parent">
+
+        <programmer.box.colorguesser.PrefixEditText
+            android:id="@+id/hex_value"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+
+            android:digits="0123456789abcdef"
+            android:ems="10"
+            android:hint="Hex"
+            android:imeOptions="actionNext"
+            android:inputType="textVisiblePassword"
+            android:maxLength="6"
+            app:prefix_text="#"
+            app:suffix_text="0/6"
+            android:padding="5dp" />
+
+            <ImageButton
+                android:id="@+id/clear_hex"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_alignParentTop="true"
+                android:layout_toEndOf="@+id/hex_value"
+                android:background="@android:color/transparent"
+                app:srcCompat="@android:drawable/ic_notification_clear_all" />
+        </RelativeLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/cmyk_lin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="5dp"
-        android:layout_above="@+id/hex_value">
+        android:layout_above="@+id/hex_lin"
+        android:layout_alignParentStart="true"
+        android:background="@drawable/border_corners"
+        android:padding="3dp">
 
-        <EditText
-            android:id="@+id/c_value"
-            android:layout_width="65dp"
+        <RelativeLayout
+            android:id="@+id/cmyk_view"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:ems="10"
-            android:hint="C"
-            android:nextFocusForward="@id/m_value"
-            android:imeOptions="actionNext"
-            android:inputType="number"
-            android:maxLength="3" />
+            android:layout_above="@+id/hex_lin"
+            android:background="@drawable/round_couners"
+            android:padding="5dp">
 
-        <EditText
-            android:id="@+id/m_value"
-            android:layout_width="65dp"
-            android:layout_height="wrap_content"
-            android:layout_toEndOf="@+id/c_value"
-            android:ems="10"
-            android:hint="M"
-            android:nextFocusForward="@id/y_value"
-            android:imeOptions="actionNext"
-            android:inputType="number"
-            android:maxLength="3" />
+            <EditText
+                android:id="@+id/c_value"
+                android:layout_width="65dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:ems="10"
+                android:hint="C"
+                android:imeOptions="actionNext"
+                android:inputType="number"
+                android:maxLength="3"
+                android:nextFocusForward="@id/m_value" />
 
-        <EditText
-            android:id="@+id/y_value"
-            android:layout_width="65dp"
-            android:layout_height="wrap_content"
-            android:layout_toEndOf="@+id/m_value"
-            android:ems="10"
-            android:hint="Y"
-            android:nextFocusForward="@id/k_value"
-            android:imeOptions="actionNext"
-            android:inputType="number"
-            android:maxLength="3" />
+            <EditText
+                android:id="@+id/m_value"
+                android:layout_width="65dp"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@+id/c_value"
+                android:ems="10"
+                android:hint="M"
+                android:imeOptions="actionNext"
+                android:inputType="number"
+                android:maxLength="3"
+                android:nextFocusForward="@id/y_value" />
 
-        <EditText
-            android:id="@+id/k_value"
-            android:layout_width="65dp"
-            android:layout_height="wrap_content"
-            android:layout_toEndOf="@+id/y_value"
-            android:ems="10"
-            android:hint="K"
-            android:imeOptions="actionDone"
-            android:inputType="number"
-            android:maxLength="3" />
+            <EditText
+                android:id="@+id/y_value"
+                android:layout_width="65dp"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@+id/m_value"
+                android:ems="10"
+                android:hint="Y"
+                android:imeOptions="actionNext"
+                android:inputType="number"
+                android:maxLength="3"
+                android:nextFocusForward="@id/k_value" />
 
-    </RelativeLayout>
+            <EditText
+                android:id="@+id/k_value"
+                android:layout_width="65dp"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@+id/y_value"
+                android:ems="10"
+                android:hint="K"
+                android:imeOptions="actionDone"
+                android:inputType="number"
+                android:maxLength="3" />
+
+            <ImageButton
+                android:id="@+id/clear_cmyk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toEndOf="@+id/k_value"
+                android:background="@android:color/transparent"
+                app:srcCompat="@android:drawable/ic_notification_clear_all" />
+
+        </RelativeLayout>
+
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/preset_lin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/cmyk_view"
+        android:layout_above="@+id/cmyk_lin"
         android:layout_alignParentStart="true"
         android:layout_alignStart="@+id/guess"
         android:background="@drawable/border_corners"
@@ -204,6 +271,16 @@
             app:srcCompat="@android:drawable/ic_menu_manage" />
     </LinearLayout>
 
+    <com.rtugeek.android.colorseekbar.ColorSeekBar
+        android:id="@+id/colorSlider"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/cheatMode"
+        android:layout_alignParentStart="true"
+        android:background="@drawable/rounded_corners"
+        android:visibility="invisible"
+        app:colorSeeds="@array/material_colors1" />
+
     <TextView
         android:id="@+id/cheatMode"
         android:layout_width="match_parent"
@@ -211,6 +288,8 @@
         android:layout_above="@+id/preset_lin"
         android:layout_alignParentStart="true"
         android:text="TextView"
+        android:padding="5dp"
+        android:background="@drawable/rounded_corners"
         android:visibility="invisible" />
 
     <!-- <com.jaredrummler.materialspinner.MaterialSpinner
