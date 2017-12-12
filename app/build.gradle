@@ -49,7 +49,7 @@ dependencies {
 
     compile 'com.github.rtugeek:ColorSeekBar:1.6.2'
 
-    compile 'com.github.jakepurple13:HelperUtils2:v1.1'
+    compile 'com.github.jakepurple13:HelperUtils2:v1.4'
 
     //compile 'com.github.wooplr:Spotlight:1.2.3'
 

@@ -25,6 +25,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
@@ -63,57 +64,73 @@ import programmer.box.utilityhelper.UtilDevice;
 import programmer.box.utilityhelper.UtilImage;
 import programmer.box.utilityhelper.UtilLog;
 import programmer.box.utilityhelper.UtilNotification;
+import programmer.box.utilityhelper.UtilPreferences;
 import studio.carbonylgroup.textfieldboxes.ExtendedEditText;
 
 public class MainActivity extends AppCompatActivity implements LifecycleOwner {
 
+    //the guess button
     Button guess;
-
+    //R
     EditText rValue;
+    //G
     EditText gValue;
+    //B
     EditText bValue;
+    //Hex
     PrefixEditText hexValue;
-
+    //C
     EditText cValue;
+    //M
     EditText mValue;
+    //Y
     EditText yValue;
+    //K
     EditText kValue;
-
+    //A button to clear cmyk fields
     ImageButton cmykClear;
+    //A button to clear hex field
     ImageButton hexClear;
+    //A button to clear rgb fields
     ImageButton rgbClear;
-
+    //the score
     TextView score;
-
+    //the background
     RelativeLayout layout;
+    //background for cmyk
     RelativeLayout cmyk;
+    //background for rgb
     RelativeLayout rgb;
+    //background for hex
     RelativeLayout hex;
-
+    //settings button
     FloatingActionButton fab;
-
+    //random generator
     Random gen = new Random();
-
+    //the current color
     int currentColor;
-
+    //the current score
     int currentScore = 0;
-
+    //configuration for tutorial spotlight
     SpotlightConfig config;
-
+    //CONFETTI!
     KonfettiView konfettiView;
-
+    //RGB max value
     final static int RGB_MAX = 255;
+    //CMYK max value
     final static int CMYK_MAX = 100;
-
+    //cheat view
     TextView cheat;
-
+    //preset colors
     Spinner presetColor;
-
+    //the actual color that is being guessed
     CircleImageView colorToGuess;
-
+    //a seek bar for many colors
     ColorSeekBar colorSeekBar;
-
+    //super cheat variable that makes score halved
     boolean superCheatMode = false;
+    //custom settings menu
+    CustomPowerMenu settingsMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,6 +139,8 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
         setContentView(R.layout.activity_main);
 
         getSupportActionBar().hide();
+        //initialize UtilPreferences
+        UtilPreferences.init(this);
 
         //Cheat code setup--------------
         new KonamiCode.Installer(this)
@@ -132,17 +151,19 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                         //whatever
                         cheat.setVisibility(View.VISIBLE);
                         UtilNotification.showToast(MainActivity.this, "Super Color Mode Activated!", UtilNotification.Lengths.Short);
-
+                        //tutorial if its the first time
                         SpotlightSequence sequence = SpotlightSequence.getInstance(MainActivity.this, config);
                         sequence.addSpotlight(cheat, "Cheat Mode", "You found my easter egg!\n\nGood job!\n\nThis allows you to see the answer! But they might not be exactly what it shows. Good luck!", "cheat", false);
                         sequence.startSequence();
+                        //set cheat mode
+                        UtilPreferences.put("cheat_mode", true);
                     }
                 })
                 .install();
-
+        //custom directions
         KonamiCodeLayout.Direction direction[] = new KonamiCodeLayout.Direction[]{KonamiCodeLayout.Direction.UP,
                 KonamiCodeLayout.Direction.DOWN, KonamiCodeLayout.Direction.LEFT, KonamiCodeLayout.Direction.RIGHT};
-
+        //custom buttons
         KonamiCodeLayout.Button buttons[] = new KonamiCodeLayout.Button[]{KonamiCodeLayout.Button.NONE};
 
         new KonamiCode.Installer(this)
@@ -151,12 +172,14 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                     @Override
                     public void onFinish() {
                         colorSeekBar.setVisibility(View.VISIBLE);
-
+                        superCheatMode = true;
                         UtilNotification.showToast(MainActivity.this, "Custom Mode Activated!", UtilNotification.Lengths.Short);
 
                         SpotlightSequence sequence = SpotlightSequence.getInstance(MainActivity.this, config);
-                        sequence.addSpotlight(colorSeekBar, "Custom Mode", "You found my easter egg!\n\nGood job!\n\nThis mode allows you to change the color to your choosing!", "colorseekbar4", false);
+                        sequence.addSpotlight(colorSeekBar, "Custom Mode", "You found my easter egg!\n\nGood job!\n\nThis mode allows you to change the color to your choosing!", "colorseekbar", false);
                         sequence.startSequence();
+
+                        UtilPreferences.put("custom_mode", true);
 
                         new KonamiCode.Installer(MainActivity.this)
                                 .on(MainActivity.this)
@@ -165,6 +188,11 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                                     public void onFinish() {
                                         UtilNotification.showToast(MainActivity.this, "Super Custom Mode Activated!", UtilNotification.Lengths.Short);
                                         superCheatMode = true;
+                                        UtilPreferences.put("super_cheat_mode", true);
+
+                                        SpotlightSequence sequence = SpotlightSequence.getInstance(MainActivity.this, config);
+                                        sequence.addSpotlight(colorSeekBar, "Super Custom Mode", "You found my easter egg!\n\nGood job!\n\nThis mode pretty much gives you the right answer at a cost", "supercheatmode", false);
+                                        sequence.startSequence();
                                     }
                                 })
                                 .install(new KonamiCodeLayout.Direction[]{KonamiCodeLayout.Direction.RIGHT,
@@ -777,7 +805,87 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
             @Override
             public void onClick(View view) {
 
-                final PowerMenu powerMenu = new PowerMenu.Builder(MainActivity.this)
+                CheckPowerMenuItem tut = new CheckPowerMenuItem("Show Tutorial", currentColor, getComplimentaryColor(currentColor), false, new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                        settingsMenu.dismiss();
+                        SpotlightSequence.resetSpotlights(MainActivity.this);
+                        showTutorial();
+                    }
+                });
+
+                CheckPowerMenuItem ded = new CheckPowerMenuItem("Show Dedication", currentColor, getComplimentaryColor(currentColor), false, new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                        settingsMenu.dismiss();
+                        new EasyDialog.Builder(MainActivity.this)
+                                .setTitle("Dedication")
+                                .setSubtitle("This app is dedicated to my mother. " +
+                                        "Who is an amazing woman and has this insane ability to guess CMYK colors just by looking at it! " +
+                                        "This is to challenge her. Have fun!")
+                                .isCancellable(true)
+                                .setCancelBtnColor("#008000")
+                                .setIcon(Icon.INFO)
+                                .setConfirmBtn("OK!", new EasyDialogListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                                    }
+                                }).build();
+                    }
+                });
+
+                CheckPowerMenuItem cheatMode = new CheckPowerMenuItem("Cheat Mode", currentColor, getComplimentaryColor(currentColor), cheat.getVisibility()==View.VISIBLE, new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                        settingsMenu.dismiss();
+                        cheat.setVisibility(b ? View.VISIBLE : View.INVISIBLE);
+                    }
+                });
+
+                final CheckPowerMenuItem customMode = new CheckPowerMenuItem("Custom Mode", currentColor, getComplimentaryColor(currentColor), colorSeekBar.getVisibility()==View.VISIBLE, new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                        settingsMenu.dismiss();
+                        colorSeekBar.setVisibility(b ? View.VISIBLE : View.INVISIBLE);
+                        if(!b) {
+                            reset(getRandomColor());
+                        }
+                    }
+                });
+
+                CheckPowerMenuItem superCustomMode = new CheckPowerMenuItem("Super Custom Cheat Mode", currentColor, getComplimentaryColor(currentColor), superCheatMode, new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                        settingsMenu.dismiss();
+                        superCheatMode = b || customMode.isChecked();
+                    }
+                });
+
+                CustomPowerMenu.Builder customPowerMenu = new CustomPowerMenu.Builder<>(MainActivity.this, new CheckMenuAdapter())
+                        .addItem(tut)
+                        .addItem(ded)
+                        .setAnimation(MenuAnimation.SHOWUP_TOP_RIGHT) // Animation start point (TOP | LEFT)
+                        .setMenuRadius(10f)
+                        .setMenuShadow(10f)
+                        .setShowBackground(false)
+                        .setLifecycleOwner(MainActivity.this);
+
+                if(UtilPreferences.get("cheat_mode", false)) {
+                    customPowerMenu.addItem(cheatMode);
+                }
+
+                if(UtilPreferences.get("custom_mode", false)) {
+                    customPowerMenu.addItem(customMode);
+                }
+
+                if(UtilPreferences.get("super_cheat_mode", false)) {
+                    customPowerMenu.addItem(superCustomMode);
+                }
+                settingsMenu = customPowerMenu.build();
+                settingsMenu.showAsDropDown(fab);
+
+                /*final PowerMenu powerMenu = new PowerMenu.Builder(MainActivity.this)
                         //.addItemList(list) // list has "Novel", "Poerty", "Art"
                         .addItem(new PowerMenuItem("Show Tutorial", false))
                         .addItem(new PowerMenuItem("View Dedication Again", false))
@@ -798,48 +906,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                         .setLifecycleOwner(MainActivity.this)
                         .build();
 
-                powerMenu.setOnMenuItemClickListener(new OnMenuItemClickListener<PowerMenuItem>() {
-                    @Override
-                    public void onItemClick(int position, PowerMenuItem item) {
-
-                        powerMenu.dismiss();
-
-                        switch (item.getTitle()) {
-
-                            case "Show Tutorial":
-
-                                SpotlightSequence.resetSpotlights(MainActivity.this);
-                                showTutorial();
-
-                                break;
-
-                            case "View Dedication Again":
-
-                                new EasyDialog.Builder(MainActivity.this)
-                                        .setTitle("Dedication")
-                                        .setSubtitle("This app is dedicated to my mother. " +
-                                                "Who is an amazing woman and has this insane ability to guess CMYK colors just by looking at it! " +
-                                                "This is to challenge her. Have fun!")
-                                        .isCancellable(true)
-                                        .setCancelBtnColor("#008000")
-                                        .setIcon(Icon.INFO)
-                                        .setConfirmBtn("OK!", new EasyDialogListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialogInterface, int i) {
-
-                                            }
-                                        }).build();
-
-                                break;
-
-                            default:
-                                break;
-                        }
-
-                    }
-                });
-
-                powerMenu.showAsDropDown(fab);
+                powerMenu.showAsDropDown(fab);*/
 
 
             }
@@ -913,32 +980,6 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
      * @return - points
      */
     public int getScore(int actual, int guessed) {
-
-        /*int dif;
-
-        if(actual==guessed) {
-
-            return 255;
-
-        } else if(actual>guessed) {
-
-            dif = actual-guessed;
-
-        } else if(actual<guessed) {
-
-            dif = guessed-actual;
-
-        } else {
-            return 0;
-        }
-
-        if(dif>=128) {
-            return 128+dif;
-        } else if(dif<128) {
-            return 128 - dif;
-        } else {
-            return 0;
-        }*/
         //RGB_MAX - difference
         return RGB_MAX-(actual>=guessed ? (actual-guessed) : (guessed-actual));
     }
