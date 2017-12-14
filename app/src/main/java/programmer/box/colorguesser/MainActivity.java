@@ -1,9 +1,11 @@
 package programmer.box.colorguesser;
 
+import android.annotation.TargetApi;
 import android.app.Dialog;
 import android.arch.lifecycle.LifecycleOwner;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
@@ -12,6 +14,9 @@ import android.graphics.ColorSpace;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.Build;
+import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.graphics.ColorUtils;
 import android.support.v4.graphics.drawable.DrawableCompat;
@@ -45,6 +50,7 @@ import com.skydoves.powermenu.PowerMenu;
 import com.skydoves.powermenu.PowerMenuItem;
 import com.wooplr.spotlight.SpotlightConfig;
 import com.wooplr.spotlight.SpotlightView;
+import com.wooplr.spotlight.utils.SpotlightListener;
 import com.wooplr.spotlight.utils.SpotlightSequence;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -150,11 +156,30 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                     public void onFinish() {
                         //whatever
                         cheat.setVisibility(View.VISIBLE);
-                        UtilNotification.showToast(MainActivity.this, "Super Color Mode Activated!", UtilNotification.Lengths.Short);
+                        //UtilNotification.showToast(MainActivity.this, "Super Color Mode Activated!", UtilNotification.Lengths.Short);
+
                         //tutorial if its the first time
-                        SpotlightSequence sequence = SpotlightSequence.getInstance(MainActivity.this, config);
-                        sequence.addSpotlight(cheat, "Cheat Mode", "You found my easter egg!\n\nGood job!\n\nThis allows you to see the answer! But they might not be exactly what it shows. Good luck!", "cheat", false);
-                        sequence.startSequence();
+                        //SpotlightSequence sequence = SpotlightSequence.getInstance(MainActivity.this, config);
+                        //sequence.addSpotlight(cheat, "Cheat Mode", "You found my easter egg!\n\nGood job!\n\nThis allows you to see the answer! But they might not be exactly what it shows. Good luck!", "cheat", false);
+                        //sequence.startSequence();
+
+                        new SpotlightView.Builder(MainActivity.this)
+                                .setConfiguration(config)
+                                .performClick(true)
+                                .headingTvText("Cheat Mode")
+                                .subHeadingTvText("You found my easter egg!\n\nGood job!\n\nThis allows you to see the answer! But they might not be exactly what it shows. Good luck!")
+                                .target(cheat)
+                                .showTargetArc(false)
+                                .usageId("cheat") //UNIQUE ID
+                                .setListener(new SpotlightListener() {
+                                    @Override
+                                    public void onUserClicked(String spotlightViewId) {
+                                        achievementGet("Cheat Mode Activated!");
+                                    }
+                                })
+                                .show();
+
+
                         //set cheat mode
                         UtilPreferences.put("cheat_mode", true);
                     }
@@ -172,12 +197,27 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                     @Override
                     public void onFinish() {
                         colorSeekBar.setVisibility(View.VISIBLE);
-                        superCheatMode = true;
-                        UtilNotification.showToast(MainActivity.this, "Custom Mode Activated!", UtilNotification.Lengths.Short);
 
-                        SpotlightSequence sequence = SpotlightSequence.getInstance(MainActivity.this, config);
-                        sequence.addSpotlight(colorSeekBar, "Custom Mode", "You found my easter egg!\n\nGood job!\n\nThis mode allows you to change the color to your choosing!", "colorseekbar", false);
-                        sequence.startSequence();
+                        //UtilNotification.showToast(MainActivity.this, "Custom Mode Activated!", UtilNotification.Lengths.Short);
+                        //SpotlightSequence sequence = SpotlightSequence.getInstance(MainActivity.this, config);
+                        //sequence.addSpotlight(colorSeekBar, "Custom Mode", "You found my easter egg!\n\nGood job!\n\nThis mode allows you to change the color to your choosing!", "colorseekbar", false);
+                        //sequence.startSequence();
+
+                        new SpotlightView.Builder(MainActivity.this)
+                                .setConfiguration(config)
+                                .performClick(true)
+                                .headingTvText("Custom Mode")
+                                .subHeadingTvText("You found my easter egg!\n\nGood job!\n\nThis mode allows you to change the color to your choosing!")
+                                .target(colorSeekBar)
+                                .showTargetArc(false)
+                                .usageId("colorseekbar") //UNIQUE ID
+                                .setListener(new SpotlightListener() {
+                                    @Override
+                                    public void onUserClicked(String spotlightViewId) {
+                                        achievementGet("Custom Mode Activated!");
+                                    }
+                                })
+                                .show();
 
                         UtilPreferences.put("custom_mode", true);
 
@@ -186,13 +226,26 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                                 .callback(new KonamiCodeLayout.Callback() {
                                     @Override
                                     public void onFinish() {
-                                        UtilNotification.showToast(MainActivity.this, "Super Custom Mode Activated!", UtilNotification.Lengths.Short);
+                                        //UtilNotification.showToast(MainActivity.this, "Super Custom Mode Activated!", UtilNotification.Lengths.Short);
+
                                         superCheatMode = true;
                                         UtilPreferences.put("super_cheat_mode", true);
 
-                                        SpotlightSequence sequence = SpotlightSequence.getInstance(MainActivity.this, config);
-                                        sequence.addSpotlight(colorSeekBar, "Super Custom Mode", "You found my easter egg!\n\nGood job!\n\nThis mode pretty much gives you the right answer at a cost", "supercheatmode", false);
-                                        sequence.startSequence();
+                                        new SpotlightView.Builder(MainActivity.this)
+                                                .setConfiguration(config)
+                                                .headingTvText("Super Custom Mode")
+                                                .subHeadingTvText("You found my easter egg!\n\nGood job!\n\nThis mode pretty much gives you the right answer at a cost")
+                                                .target(colorSeekBar)
+                                                .showTargetArc(false)
+                                                .usageId("supercheatmode") //UNIQUE ID
+                                                .setListener(new SpotlightListener() {
+                                                    @Override
+                                                    public void onUserClicked(String spotlightViewId) {
+                                                        achievementGet("Super Custom Mode Activated!");
+                                                    }
+                                                })
+                                                .show();
+
                                     }
                                 })
                                 .install(new KonamiCodeLayout.Direction[]{KonamiCodeLayout.Direction.RIGHT,
@@ -858,7 +911,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                     @Override
                     public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                         settingsMenu.dismiss();
-                        superCheatMode = b || customMode.isChecked();
+                        superCheatMode = b;// || customMode.isChecked();
                     }
                 });
 
@@ -873,41 +926,33 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
 
                 if(UtilPreferences.get("cheat_mode", false)) {
                     customPowerMenu.addItem(cheatMode);
+                } else {
+                    cheatMode.setListener(null);
+                    cheatMode.setTitle("Locked");
+                    cheatMode.setEnabled(false);
+                    customPowerMenu.addItem(cheatMode);
                 }
 
                 if(UtilPreferences.get("custom_mode", false)) {
+                    customPowerMenu.addItem(customMode);
+                } else {
+                    customMode.setListener(null);
+                    customMode.setTitle("Locked");
+                    customMode.setEnabled(false);
                     customPowerMenu.addItem(customMode);
                 }
 
                 if(UtilPreferences.get("super_cheat_mode", false)) {
                     customPowerMenu.addItem(superCustomMode);
+                } else {
+                    superCustomMode.setListener(null);
+                    superCustomMode.setTitle("Locked");
+                    superCustomMode.setEnabled(false);
+                    customPowerMenu.addItem(superCustomMode);
                 }
+
                 settingsMenu = customPowerMenu.build();
                 settingsMenu.showAsDropDown(fab);
-
-                /*final PowerMenu powerMenu = new PowerMenu.Builder(MainActivity.this)
-                        //.addItemList(list) // list has "Novel", "Poerty", "Art"
-                        .addItem(new PowerMenuItem("Show Tutorial", false))
-                        .addItem(new PowerMenuItem("View Dedication Again", false))
-                        .setAnimation(MenuAnimation.SHOWUP_TOP_RIGHT) // Animation start point (TOP | LEFT)
-                        .setMenuRadius(10f)
-                        .setMenuShadow(10f)
-                        //.setTextColor(Color.BLACK)
-                        //.setTextColor(getComplimentaryColor(currentColor))
-                        //.setTextColor(currentColor.toArgb())
-                        .setTextColor(currentColor)
-                        .setSelectedTextColor(Color.WHITE)
-                        .setDivider(getResources().getDrawable(android.R.drawable.divider_horizontal_dim_dark, null))
-                        //.setMenuColor(Color.WHITE)
-                        //.setMenuColor(currentColor.toArgb())
-                        .setMenuColor(getComplimentaryColor(currentColor))
-                        .setSelectedMenuColor(Color.WHITE)
-                        .setShowBackground(false)
-                        .setLifecycleOwner(MainActivity.this)
-                        .build();
-
-                powerMenu.showAsDropDown(fab);*/
-
 
             }
         });
@@ -1208,6 +1253,42 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
         super.onStop();
     }
 
+    public void achievementGet(String message) {
+
+        try {
+
+            //AchievementUnlocked achievementUnlocked = new AchievementUnlocked(getApplicationContext());
+            AchievementUnlocked achievementUnlocked = new AchievementUnlocked(this);
+            AchievementData data = new AchievementData();
+            data.setTitle("Achievement Unlocked");
+            data.setSubtitle(message);
+            data.setIcon(getDrawable(R.drawable.trophy));
+            //data.setIcon(getDrawable(android.R.drawable.ic_input_add));
+            data.setIconColor(getColor(R.color.Gold));
+            data.setState(AchievementIconView.AchievementIconViewStates.FADE_DRAWABLE);
+            data.setTextColor(Color.rgb(230, 230, 230));
+            //data.setIconBackgroundColor(Color.WHITE);
+            data.setIconBackgroundColor(Color.rgb(58, 63, 64));
+            //data.setIconBackgroundColor(Color.rgb(0, 217, 59));
+            data.setBackgroundColor(Color.rgb(58, 63, 64));
+            data.setPopUpOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    UtilNotification.showToast(MainActivity.this, "You'll find it in the settings menu", UtilNotification.Lengths.Short);
+                }
+            });
+            achievementUnlocked.setLarge(true);
+            achievementUnlocked.setDismissible(true);
+            achievementUnlocked.setTopAligned(true);
+            achievementUnlocked.show(data);
+
+        } catch(NullPointerException e) {
+            e.printStackTrace();
+            UtilNotification.showToast(MainActivity.this, message, UtilNotification.Lengths.Short);
+        }
+
+    }
+
     /**
      * showTutorial - shows a tutorial
      */
@@ -1215,7 +1296,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
         SpotlightSequence sequence = SpotlightSequence.getInstance(MainActivity.this, config);
         sequence.addSpotlight(colorToGuess, getString(R.string.color_guess), getString(R.string.color_guess_info), "colortoguess", false);
         sequence.addSpotlight(rgb, getString(R.string.rgb), getString(R.string.rgb_info), "rgb");
-        sequence.addSpotlight(hexValue, getString(R.string.hex), getString(R.string.hex_info), "hex");
+        sequence.addSpotlight(hex, getString(R.string.hex), getString(R.string.hex_info), "hex");
         sequence.addSpotlight(cmyk, getString(R.string.cmyk), getString(R.string.cmyk_info), "cmyk");
         sequence.addSpotlight(presetColor, getString(R.string.preset), getString(R.string.preset_info), "preset");
         sequence.addSpotlight(guess, getString(R.string.guess), getString(R.string.guess_info), "guess");
@@ -1274,5 +1355,6 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
 
 
     }
+
 
 }

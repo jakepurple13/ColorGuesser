@@ -1,1 +1,1 @@
-include ':app', ':Spotlight-library', ':library'
+include ':app', ':Spotlight-library', ':library', ':achievement'

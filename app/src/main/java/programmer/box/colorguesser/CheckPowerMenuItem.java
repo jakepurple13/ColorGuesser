@@ -13,6 +13,7 @@ public class CheckPowerMenuItem {
     private int backgroundColor;
     private CompoundButton.OnCheckedChangeListener listener;
     private boolean isChecked;
+    private boolean isEnabled = true;
 
     public CheckPowerMenuItem(String title, int textColor, int backgroundColor, boolean isChecked, CompoundButton.OnCheckedChangeListener listener) {
         this.title = title;
@@ -42,5 +43,25 @@ public class CheckPowerMenuItem {
 
     public CompoundButton.OnCheckedChangeListener getListener() {
         return listener;
+    }
+
+    public void setChecked(boolean checked) {
+        isChecked = checked;
+    }
+
+    public void setListener(CompoundButton.OnCheckedChangeListener listener) {
+        this.listener = listener;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public boolean isEnabled() {
+        return isEnabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        isEnabled = enabled;
     }
 }

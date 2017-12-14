@@ -34,6 +34,7 @@ public class CheckMenuAdapter extends MenuBaseAdapter<CheckPowerMenuItem> {
         final CheckBox title = view.findViewById(R.id.checkbox);
         title.setOnCheckedChangeListener (null);
         title.setChecked(item.isChecked());
+        title.setEnabled(item.isEnabled());
         title.setText(item.getTitle());
         title.setTextColor(item.getTextColor());
         title.setOnCheckedChangeListener(item.getListener());
