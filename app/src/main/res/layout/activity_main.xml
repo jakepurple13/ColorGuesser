@@ -20,8 +20,8 @@
         android:id="@+id/profile_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@id/colorSlider"
-        android:layout_below="@+id/settings_lin"
+        android:layout_above="@id/textView2"
+        android:layout_below="@+id/textView"
         android:layout_centerHorizontal="true"
         android:src="@color/white"
         app:civ_border_color="#FF000000"
@@ -267,6 +267,7 @@
             android:id="@+id/settings"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:backgroundTint="@color/Black"
             android:clickable="true"
             app:srcCompat="@android:drawable/ic_menu_manage" />
     </LinearLayout>
@@ -291,6 +292,31 @@
         android:padding="5dp"
         android:background="@drawable/rounded_corners"
         android:visibility="invisible" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:layout_below="@id/settings_lin"
+        android:layout_centerHorizontal="true"
+        android:fontFamily="@font/swtcon"
+        android:text="Guess the Color"
+        android:textColor="@color/Black"
+        android:textAllCaps="true"
+        android:textSize="32dp" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/colorSlider"
+        android:layout_centerHorizontal="true"
+        android:fontFamily="@font/swtcon"
+        android:text="Enter Below"
+        android:textColor="@color/Black"
+        android:textAllCaps="true"
+        android:textSize="26dp" />
 
     <!-- <com.jaredrummler.materialspinner.MaterialSpinner
          android:id="@+id/preset_color"

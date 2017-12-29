@@ -51,6 +51,8 @@ dependencies {
 
     compile 'com.github.jakepurple13:HelperUtils2:v1.6'
 
+    implementation 'com.simmorsal.recolor:recolor:1.1.0'
+
     //compile 'com.github.wooplr:Spotlight:1.2.3'
 
     compile 'de.hdodenhof:circleimageview:2.2.0'

@@ -1,5 +1,8 @@
 package programmer.box.colorguesser;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
 import android.app.Dialog;
 import android.arch.lifecycle.LifecycleOwner;
@@ -26,6 +29,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -43,6 +47,7 @@ import com.majeur.cling.Cling;
 import com.majeur.cling.ClingManager;
 import com.majeur.cling.ViewTarget;
 import com.rtugeek.android.colorseekbar.ColorSeekBar;
+import com.simmorsal.recolor_project.ReColor;
 import com.skydoves.powermenu.CustomPowerMenu;
 import com.skydoves.powermenu.MenuAnimation;
 import com.skydoves.powermenu.OnMenuItemClickListener;
@@ -418,6 +423,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                     int comColor = getComplimentaryColor(color);
                     int hintComColor = (comColor & 0x00FFFFFF) | 0x50000000;
                     rgb.getBackground().setTint(color);
+                    //new ReColor(MainActivity.this).setViewBackgroundColor(rgb,rgb.getBackground()., Integer.toHexString(color), 400);
                     rValue.setTextColor(comColor);
                     gValue.setTextColor(comColor);
                     bValue.setTextColor(comColor);
@@ -744,6 +750,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                 //the correct answer info
                 String checkedMark = "\u2713";
                 String xMark = "X";
+                String yourGuess = "Your Guess\n";
                 //the results for hex value
                 String hexInfo = "Hex: #" + Integer.toHexString(currentColor).substring(2) + "\t"
                         + ((Integer.toHexString(currentColor).substring(2)).equals(hexGuess) ? checkedMark : xMark);// + "\t" + hexGuess;
@@ -764,7 +771,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                 String scoreInfo = "Points Scored: " + addedScore;
                 //user guessed info
                 //user hex guess
-                String hexGuessedInfo = "Hex: #" + (!hexGuess.equals("") ? hexGuess : "ffffff");
+                String hexGuessedInfo = yourGuess + "Hex: #" + (!hexGuess.equals("") ? hexGuess : "ffffff");
                 int hexGuessedColor;
 
                 try {
@@ -776,7 +783,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                 String rGuessInfo = (!rGuessed.equals("") ? rGuessed : "0");
                 String gGuessInfo = (!gGuessed.equals("") ? gGuessed : "0");
                 String bGuessInfo = (!bGuessed.equals("") ? bGuessed : "0");
-                String rgbGuessedInfo = "R: " + rGuessInfo + "\nG: " + gGuessInfo + "\nB: " + bGuessInfo;
+                String rgbGuessedInfo = yourGuess + "R: " + rGuessInfo + "\nG: " + gGuessInfo + "\nB: " + bGuessInfo;
                 int rgbGuessedColor;
 
                 try {
@@ -789,7 +796,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                 String mGuessInfo = (!mGuessed.equals("") ? mGuessed : "0");
                 String yGuessInfo = (!yGuessed.equals("") ? yGuessed : "0");
                 String kGuessInfo = (!kGuessed.equals("") ? kGuessed : "0");
-                String cmykGuessedInfo = "C: " + cGuessInfo + "\nM: " + mGuessInfo + "\nY: " + yGuessInfo + "\nK: " + kGuessInfo;
+                String cmykGuessedInfo = yourGuess + "C: " + cGuessInfo + "\nM: " + mGuessInfo + "\nY: " + yGuessInfo + "\nK: " + kGuessInfo;
                 int cmykGuessedColor;
 
                 try {
@@ -857,8 +864,11 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                
+                int textColor = Color.WHITE;
+                int bg = UtilImage.lighter(getColor(R.color.Black), .23f);
 
-                CheckPowerMenuItem tut = new CheckPowerMenuItem("Show Tutorial", currentColor, getComplimentaryColor(currentColor), false, new CompoundButton.OnCheckedChangeListener() {
+                CheckPowerMenuItem tut = new CheckPowerMenuItem("Show Tutorial", textColor, bg, false, new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                         settingsMenu.dismiss();
@@ -867,7 +877,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                     }
                 });
 
-                CheckPowerMenuItem ded = new CheckPowerMenuItem("Show Dedication", currentColor, getComplimentaryColor(currentColor), false, new CompoundButton.OnCheckedChangeListener() {
+                CheckPowerMenuItem ded = new CheckPowerMenuItem("Show Dedication", textColor, bg, false, new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                         settingsMenu.dismiss();
@@ -888,7 +898,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                     }
                 });
 
-                CheckPowerMenuItem cheatMode = new CheckPowerMenuItem("Cheat Mode", currentColor, getComplimentaryColor(currentColor), cheat.getVisibility()==View.VISIBLE, new CompoundButton.OnCheckedChangeListener() {
+                CheckPowerMenuItem cheatMode = new CheckPowerMenuItem("Cheat Mode", textColor, bg, cheat.getVisibility()==View.VISIBLE, new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                         settingsMenu.dismiss();
@@ -896,7 +906,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                     }
                 });
 
-                final CheckPowerMenuItem customMode = new CheckPowerMenuItem("Custom Mode", currentColor, getComplimentaryColor(currentColor), colorSeekBar.getVisibility()==View.VISIBLE, new CompoundButton.OnCheckedChangeListener() {
+                final CheckPowerMenuItem customMode = new CheckPowerMenuItem("Custom Mode", textColor, bg, colorSeekBar.getVisibility()==View.VISIBLE, new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                         settingsMenu.dismiss();
@@ -907,7 +917,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                     }
                 });
 
-                CheckPowerMenuItem superCustomMode = new CheckPowerMenuItem("Super Custom Cheat Mode", currentColor, getComplimentaryColor(currentColor), superCheatMode, new CompoundButton.OnCheckedChangeListener() {
+                CheckPowerMenuItem superCustomMode = new CheckPowerMenuItem("Super Custom Cheat Mode", textColor, bg, superCheatMode, new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                         settingsMenu.dismiss();
@@ -958,6 +968,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
         });
 
         //let's begin with a random color
+        currentColor = getRandomColor();
         reset(getRandomColor());
         //first time tutorial
         firstTime();
@@ -1084,14 +1095,29 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
         mValue.setText("");
         yValue.setText("");
         kValue.setText("");
-
+        int oldColor = currentColor;
         currentColor = newColor;
 
-        Drawable d = colorToGuess.getDrawable();
-        d.setColorFilter(new PorterDuffColorFilter(currentColor, PorterDuff.Mode.MULTIPLY));
-        colorToGuess.setImageDrawable(d);
+        //Drawable d = colorToGuess.getDrawable();
+        //d.setColorFilter(new PorterDuffColorFilter(currentColor, PorterDuff.Mode.MULTIPLY));
+        //colorToGuess.setImageDrawable(d);
+        new ReColor(this).setImageViewColorFilter(colorToGuess, Integer.toHexString(oldColor), Integer.toHexString(newColor), 400);
 
-        fab.setBackgroundTintList(new ColorStateList(new int[][]{new int[]{0}}, new int[]{getComplimentaryColor(currentColor)}));
+        //fab.setBackgroundTintList(new ColorStateList(new int[][]{new int[]{0}}, new int[]{getComplimentaryColor(currentColor)}));
+        //fab.setBackgroundTintList(new ColorStateList(new int[][]{new int[]{0}}, new int[]{currentColor}));
+
+        final ObjectAnimator animator = ObjectAnimator.ofInt(fab, "backgroundTint", oldColor, newColor);
+        animator.setDuration(400L);
+        animator.setEvaluator(new ArgbEvaluator());
+        animator.setInterpolator(new DecelerateInterpolator());
+        animator.addUpdateListener(new ObjectAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                int animatedValue = (int) animation.getAnimatedValue();
+                fab.setBackgroundTintList(ColorStateList.valueOf(animatedValue));
+            }
+        });
+        animator.start();
 
         int color = currentColor;
         //rgb
@@ -1124,7 +1150,8 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
 
         UtilLog.e(msg);
 
-        UtilDevice.changeStatusBarColor(this, color);
+        //UtilDevice.changeStatusBarColor(this, color);
+        new ReColor(this).setStatusBarColor(Integer.toHexString(oldColor), Integer.toHexString(newColor), 300);
         //for cheat mode
         cheat.setText(msg);
         //change tutorial colors
