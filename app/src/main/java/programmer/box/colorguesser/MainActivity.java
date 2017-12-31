@@ -3,6 +3,7 @@ package programmer.box.colorguesser;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Dialog;
 import android.arch.lifecycle.LifecycleOwner;
@@ -750,23 +751,24 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                 //the correct answer info
                 String checkedMark = "\u2713";
                 String xMark = "X";
-                String yourGuess = "Your Guess\n";
+                String yourGuess = "<b>Your Guess</b><br/>";
+                String correctValues = "<b>The Correct Values</b><br/>";
                 //the results for hex value
-                String hexInfo = "Hex: #" + Integer.toHexString(currentColor).substring(2) + "\t"
+                String hexInfo = correctValues + "Hex: #" + Integer.toHexString(currentColor).substring(2) + "\t"
                         + ((Integer.toHexString(currentColor).substring(2)).equals(hexGuess) ? checkedMark : xMark);// + "\t" + hexGuess;
                 //the results for rgb
                 String rInfo = "R: " + RCol + "\t" + ((RCol+"").equals(rGuessed) ? checkedMark : xMark);// + "\t" + rGuessed;
                 String gInfo = "G: " + G + "\t" + ((G+"").equals(gGuessed) ? checkedMark : xMark);// + "\t" + gGuessed;
                 String bInfo = "B: " + B + "\t" + ((B+"").equals(bGuessed) ? checkedMark : xMark);// + "\t" + bGuessed;
                 //some housekeeping
-                String rgbInfo = rInfo+"\n"+gInfo+"\n"+bInfo;
+                String rgbInfo = correctValues + rInfo+"<br/>"+gInfo+"<br/>"+bInfo;
                 //the results for cmyk
                 String cInfo = "C: " + C + "\t" + ((C+"").equals(cGuessed) ? checkedMark : xMark);// + "\t" + cGuessed;
                 String mInfo = "M: " + M + "\t" + ((M+"").equals(mGuessed) ? checkedMark : xMark);// + "\t" + mGuessed;
                 String yInfo = "Y: " + Y + "\t" + ((Y+"").equals(yGuessed) ? checkedMark : xMark);// + "\t" + yGuessed;
                 String kInfo = "K: " + K + "\t" + ((K+"").equals(kGuessed) ? checkedMark : xMark);// + "\t" + kGuessed;
                 //more housekeeping
-                String cmykInfo = cInfo+"\n"+mInfo+"\n"+yInfo+"\n"+kInfo;
+                String cmykInfo = correctValues + cInfo+"<br/>"+mInfo+"<br/>"+yInfo+"<br/>"+kInfo;
                 //points scored
                 String scoreInfo = "Points Scored: " + addedScore;
                 //user guessed info
@@ -783,7 +785,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                 String rGuessInfo = (!rGuessed.equals("") ? rGuessed : "0");
                 String gGuessInfo = (!gGuessed.equals("") ? gGuessed : "0");
                 String bGuessInfo = (!bGuessed.equals("") ? bGuessed : "0");
-                String rgbGuessedInfo = yourGuess + "R: " + rGuessInfo + "\nG: " + gGuessInfo + "\nB: " + bGuessInfo;
+                String rgbGuessedInfo = yourGuess + "R: " + rGuessInfo + "<br/>G: " + gGuessInfo + "<br/>B: " + bGuessInfo;
                 int rgbGuessedColor;
 
                 try {
@@ -796,7 +798,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                 String mGuessInfo = (!mGuessed.equals("") ? mGuessed : "0");
                 String yGuessInfo = (!yGuessed.equals("") ? yGuessed : "0");
                 String kGuessInfo = (!kGuessed.equals("") ? kGuessed : "0");
-                String cmykGuessedInfo = yourGuess + "C: " + cGuessInfo + "\nM: " + mGuessInfo + "\nY: " + yGuessInfo + "\nK: " + kGuessInfo;
+                String cmykGuessedInfo = yourGuess + "C: " + cGuessInfo + "<br/>M: " + mGuessInfo + "<br/>Y: " + yGuessInfo + "<br/>K: " + kGuessInfo;
                 int cmykGuessedColor;
 
                 try {
@@ -837,7 +839,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
                         .setMenuShadow(10f)
                         .setDividerHeight(3)
                         .setDivider(getResources().getDrawable(android.R.drawable.dark_header, null))
-                        .setShowBackground(false)
+                        .setShowBackground(true)
                         .setLifecycleOwner(MainActivity.this)
                         .build();
 
@@ -1106,7 +1108,7 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
         //fab.setBackgroundTintList(new ColorStateList(new int[][]{new int[]{0}}, new int[]{getComplimentaryColor(currentColor)}));
         //fab.setBackgroundTintList(new ColorStateList(new int[][]{new int[]{0}}, new int[]{currentColor}));
 
-        final ObjectAnimator animator = ObjectAnimator.ofInt(fab, "backgroundTint", oldColor, newColor);
+        @SuppressLint("ObjectAnimatorBinding") final ObjectAnimator animator = ObjectAnimator.ofInt(fab, "backgroundTint", oldColor, newColor);
         animator.setDuration(400L);
         animator.setEvaluator(new ArgbEvaluator());
         animator.setInterpolator(new DecelerateInterpolator());

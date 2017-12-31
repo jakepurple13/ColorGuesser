@@ -2,6 +2,8 @@ package programmer.box.colorguesser;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.text.Html;
+import android.text.SpannableString;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,7 +34,14 @@ public class IconMenuAdapter extends MenuBaseAdapter<IconPowerMenuItem> {
         final RelativeLayout background = view.findViewById(R.id.info_back);
         background.setBackgroundColor(item.getBackgroundColor());
         final TextView title = view.findViewById(R.id.info_text);
-        title.setText(item.getTitle());
+        title.setText(Html.fromHtml(item.getTitle(), Html.FROM_HTML_MODE_COMPACT));
+        /*try {
+            //String[] info = item.getTitle().split("]");
+            //title.setText(Html.fromHtml(info[0], Html.FROM_HTML_MODE_COMPACT) + info[1]);
+
+        } catch (ArrayIndexOutOfBoundsException e) {
+            title.setText(item.getTitle());
+        }*/
         title.setTextColor(item.getTextColor());
         return view;
     }
